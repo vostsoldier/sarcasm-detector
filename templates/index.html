@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Word Database</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Word Database</h1>
+        <form id="wordForm">
+            <input type="text" id="word" name="word" placeholder="Enter a word">
+            <button type="submit">Add Word</button>
+        </form>
+        <p id="message"></p>
+    </div>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>
