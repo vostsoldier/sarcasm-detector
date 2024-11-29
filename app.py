@@ -4,22 +4,17 @@ import nltk
 from nltk.corpus import words
 
 app = Flask(__name__)
-
-# Load the word list
 nltk.download('words')
 word_list = set(words.words())
 
-# Load the database
 def load_database():
     with open('words_database.json', 'r') as file:
         return json.load(file)
-
-# Save the database
+    
 def save_database(data):
     with open('words_database.json', 'w') as file:
         json.dump(data, file, indent=4)
 
-# Verify if the word is valid
 def is_valid_word(word):
     return word in word_list
 
@@ -43,4 +38,4 @@ def add_word():
     return jsonify({'status': 'success', 'message': 'Word added to the database.'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) 
