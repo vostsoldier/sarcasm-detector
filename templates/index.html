@@ -21,6 +21,16 @@
                 <button type="submit">Add Word</button>
             </form>
             <p id="message"></p>
+            <div class="word-of-the-day">
+                <h2>Word of the Day</h2>
+                {% if word_of_the_day %}
+                    <p><strong>{{ word_of_the_day }}</strong></p>
+                    <p>Discovered by: {{ discovered_by }}</p>
+                    <p>Definition: {{ definition }}</p>
+                {% else %}
+                    <p>No words available.</p>
+                {% endif %}
+            </div>
         </div>
         <div class="leaderboard">
             <h2>Leaderboard</h2>

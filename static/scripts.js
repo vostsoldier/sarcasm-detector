@@ -13,13 +13,16 @@ document.getElementById('wordForm').addEventListener('submit', function(event) {
         const messageElement = document.getElementById('message');
         messageElement.innerText = data.message;
         messageElement.className = data.status === 'error' ? 'error' : 'success';
-        messageElement.classList.add('pop');
-        setTimeout(() => {
-            messageElement.classList.remove('pop');
-            messageElement.classList.add('explode');
+        if (data.status === 'error') {
+            messageElement.classList.add('shake');
             setTimeout(() => {
-                messageElement.classList.remove('explode');
-            }, 600);
-        }, 300);
+                messageElement.classList.remove('shake');
+            }, 500);
+        } else {
+            messageElement.classList.add('bounce');
+            setTimeout(() => {
+                messageElement.classList.remove('bounce');
+            }, 500);
+        }
     });
 });

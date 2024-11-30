@@ -4,6 +4,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import json
 import nltk
 from nltk.corpus import words
+import random
+import requests
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -11,7 +13,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
+#API KEY
+MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
 nltk.download('words')
 word_list = set(words.words())
 
@@ -35,13 +38,28 @@ def save_database(data):
 
 def is_valid_word(word):
     return word in word_list
+def get_word_definition(word):
+    response = requests.get(f"https://www.dictionaryapi.com/api/v3/references/collegiate/json/{word}?key={MW_API_KEY}")
+    if response.status_code == 200:
+        data = response.json()
+        if data and isinstance(data, list) and 'shortdef' in data[0]:
+            return data[0]['shortdef'][0]
+    return "Definition not found"
 
+def get_word_of_the_day():
+    database = load_database()
+    if not database['words']:
+        return None, None, None
+    word = random.choice(database['words'])
+    user = User.query.filter(User.contributions.like(f"%{word}%")).first()
+    definition = get_word_definition(word)
+    return word, user.username if user else "Unknown", definition
 @app.route('/')
 def index():
     users = User.query.all()
     leaderboard_data = sorted(users, key=lambda user: len(user.contributions.split(',')) if user.contributions else 0, reverse=True)
-    return render_template('index.html', leaderboard=leaderboard_data)
-
+    word_of_the_day, discovered_by, definition = get_word_of_the_day()
+    return render_template('index.html', leaderboard=leaderboard_data, word_of_the_day=word_of_the_day, discovered_by=discovered_by, definition=definition)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -85,8 +103,10 @@ def profile():
     return render_template('profile.html', contributions=contributions)
 
 @app.route('/add_word', methods=['POST'])
-@login_required
 def add_word():
+    if not current_user.is_authenticated:
+        return jsonify({'status': 'error', 'message': 'Please sign in to add a word.'})
+    
     word = request.form['word'].strip().lower()
     database = load_database()
     
@@ -105,7 +125,6 @@ def add_word():
     db.session.commit()
     
     return jsonify({'status': 'success', 'message': 'Word added to the database.'})
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
