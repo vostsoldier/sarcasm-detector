@@ -26,3 +26,21 @@ document.getElementById('wordForm').addEventListener('submit', function(event) {
         }
     });
 });
+document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.getElementById('howToPlayPopup');
+    const closePopupButton = document.getElementById('closePopup');
+    const doNotShowAgainCheckbox = document.getElementById('doNotShowAgain');
+
+    // Check if the user has previously chosen to not show the popup
+    if (!sessionStorage.getItem('doNotShowHowToPlay') && !sessionStorage.getItem('popupShown')) {
+        popup.style.display = 'flex';
+        sessionStorage.setItem('popupShown', 'true');
+    }
+
+    closePopupButton.addEventListener('click', function() {
+        if (doNotShowAgainCheckbox.checked) {
+            localStorage.setItem('doNotShowHowToPlay', 'true');
+        }
+        popup.style.display = 'none';
+    });
+});

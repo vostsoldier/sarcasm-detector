@@ -6,7 +6,6 @@ import json
 import nltk
 from nltk.corpus import words
 import random
-import requests
 from datetime import datetime
 
 app = Flask(__name__)
@@ -20,6 +19,7 @@ login_manager.login_view = 'login'
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
 nltk.download('words')
 word_list = set(words.words())
+definition_cache = {}
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +27,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     contributions = db.Column(db.Text, nullable=True)
     date_joined = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    word_coins = db.Column(db.Integer, nullable=False, default=0)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -44,12 +45,11 @@ def is_valid_word(word):
     return word in word_list
 
 def get_word_definition(word):
-    response = requests.get(f"https://www.dictionaryapi.com/api/v3/references/collegiate/json/{word}?key={MW_API_KEY}")
-    if response.status_code == 200:
-        data = response.json()
-        if data and isinstance(data, list) and 'shortdef' in data[0]:
-            return data[0]['shortdef'][0]
-    return "Definition not found"
+    if word in definition_cache:
+        return definition_cache[word]
+    placeholder_definition = "This is a placeholder definition."
+    definition_cache[word] = placeholder_definition
+    return placeholder_definition
 
 def get_word_of_the_day():
     database = load_database()
@@ -129,9 +129,39 @@ def add_word():
         current_user.contributions += f',{word}'
     else:
         current_user.contributions = word
+    
+    # Award Word Coins
+    current_user.word_coins += 10  # Award 10 Word Coins for each contribution
     db.session.commit()
     
     return jsonify({'status': 'success', 'message': 'Word added to the database.'})
+
+@app.route('/shop')
+@login_required
+def shop():
+    items = [
+        {'name': 'Background Color', 'cost': 50, 'type': 'background_color'},
+        {'name': 'Profile Badge', 'cost': 100, 'type': 'profile_badge'},
+        # Add more items as needed
+    ]
+    return render_template('shop.html', items=items, word_coins=current_user.word_coins)
+
+@app.route('/redeem', methods=['POST'])
+@login_required
+def redeem():
+    item_type = request.form['item_type']
+    item_cost = int(request.form['item_cost'])
+    
+    if current_user.word_coins >= item_cost:
+        current_user.word_coins -= item_cost
+        # Apply the aesthetic change based on item_type
+        # For example, update the user's profile or settings
+        db.session.commit()
+        flash('Item redeemed successfully!', 'success')
+    else:
+        flash('Not enough Word Coins.', 'danger')
+    
+    return redirect(url_for('shop'))
 
 @app.route('/user/<int:user_id>')
 def user_profile(user_id):

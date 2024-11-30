@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="gradient-background"></div>
+    <a href="{{ url_for('index') }}"><button class="back-button">Back</button></a>
+    <div class="container">
+        <h1>Shop</h1>
+        <p>You have {{ word_coins }} Word Coins</p>
+        <ul>
+            {% for item in items %}
+                <li>
+                    <form method="POST" action="{{ url_for('redeem') }}">
+                        <input type="hidden" name="item_type" value="{{ item.type }}">
+                        <input type="hidden" name="item_cost" value="{{ item.cost }}">
+                        <button type="submit">{{ item.name }} - {{ item.cost }} Word Coins</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

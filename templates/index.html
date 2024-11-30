@@ -15,9 +15,9 @@
     </div>
     <div class="main-content">
         <div class="container">
-            <h1>Word Database</h1>
+            <h1>Word Vault</h1>
             <form id="wordForm">
-                <input type="text" id="word" name="word" placeholder="Enter a word">
+                <input type="text" id="word" name="word" placeholder="Enter a word" autocomplete="off">
                 <button type="submit">Add Word</button>
             </form>
             <p id="message"></p>
@@ -43,6 +43,26 @@
                 {% endfor %}
             </ul>
         </div>
+    </div>
+
+    <!-- How to Play Popup -->
+    <div id="howToPlayPopup" class="popup">
+        <div class="popup-content">
+            <h2>How to Play</h2>
+            <p>Welcome to the Word Vault! Here you can add unique words to the database. Try to input words that have never been seen before! Happy hunting!</p>
+            <label>
+                <input type="checkbox" id="doNotShowAgain"> Do not show again
+            </label>
+            <button id="closePopup">Close</button>
+        </div>
+    </div>
+    <div class="login-wrapper">
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('profile') }}"><button>Profile</button></a>
+            <a href="{{ url_for('shop') }}"><button>Shop</button></a>
+        {% else %}
+            <a href="{{ url_for('login') }}"><button>Login</button></a>
+        {% endif %}
     </div>
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
