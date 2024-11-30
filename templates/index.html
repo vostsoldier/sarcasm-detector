@@ -37,7 +37,7 @@
             <ul>
                 {% for user in leaderboard %}
                     <li>
-                        <span>{{ user.username }}</span>
+                        <a href="{{ url_for('user_profile', user_id=user.id) }}"><span>{{ user.username }}</span></a>
                         <span>{{ user.contributions.split(',')|length if user.contributions else 0 }} contributions</span>
                     </li>
                 {% endfor %}

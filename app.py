@@ -1,19 +1,22 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_migrate import Migrate
 import json
 import nltk
 from nltk.corpus import words
 import random
 import requests
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-#API KEY
+# API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
 nltk.download('words')
 word_list = set(words.words())
@@ -23,6 +26,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
     contributions = db.Column(db.Text, nullable=True)
+    date_joined = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -38,6 +42,7 @@ def save_database(data):
 
 def is_valid_word(word):
     return word in word_list
+
 def get_word_definition(word):
     response = requests.get(f"https://www.dictionaryapi.com/api/v3/references/collegiate/json/{word}?key={MW_API_KEY}")
     if response.status_code == 200:
@@ -54,12 +59,14 @@ def get_word_of_the_day():
     user = User.query.filter(User.contributions.like(f"%{word}%")).first()
     definition = get_word_definition(word)
     return word, user.username if user else "Unknown", definition
+
 @app.route('/')
 def index():
     users = User.query.all()
     leaderboard_data = sorted(users, key=lambda user: len(user.contributions.split(',')) if user.contributions else 0, reverse=True)
     word_of_the_day, discovered_by, definition = get_word_of_the_day()
     return render_template('index.html', leaderboard=leaderboard_data, word_of_the_day=word_of_the_day, discovered_by=discovered_by, definition=definition)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -80,7 +87,7 @@ def signup():
         password = request.form['password']
         existing_user = User.query.filter_by(username=username).first()
         if existing_user is None:
-            new_user = User(username=username, password=password)
+            new_user = User(username=username, password=password, date_joined=datetime.utcnow())
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
@@ -125,6 +132,13 @@ def add_word():
     db.session.commit()
     
     return jsonify({'status': 'success', 'message': 'Word added to the database.'})
+
+@app.route('/user/<int:user_id>')
+def user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    contributions = user.contributions.split(',') if user.contributions else []
+    return render_template('user_profile.html', user=user, contributions=contributions)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
