@@ -66,6 +66,29 @@ h1 {
     color: #343a40;
 }
 
+h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #343a40;
+}
+
+h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #343a40;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #343a40;
+}
+
 input[type="text"], input[type="password"] {
     width: 100%;
     padding: 12px;
@@ -171,4 +194,50 @@ button:hover {
 
 .back-button:hover {
     background-color: #0056b3;
+}
+
+.main-content {
+    display: flex;
+}
+
+.leaderboard {
+    margin-left: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 400px; /* Increased width */
+}
+
+.leaderboard h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #343a40;
+}
+
+.leaderboard ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.leaderboard li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: black;
+    word-wrap: break-word;
+}
+
+.leaderboard li span {
+    font-weight: bold;
+    color: #000000;
 }

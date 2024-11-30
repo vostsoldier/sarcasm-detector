@@ -38,7 +38,9 @@ def is_valid_word(word):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    users = User.query.all()
+    leaderboard_data = sorted(users, key=lambda user: len(user.contributions.split(',')) if user.contributions else 0, reverse=True)
+    return render_template('index.html', leaderboard=leaderboard_data)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -64,6 +66,7 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
+            flash('Thank you for creating an account!', 'success')
             return redirect(url_for('profile'))
         else:
             flash('Username already exists. Please choose a different one.', 'danger')
