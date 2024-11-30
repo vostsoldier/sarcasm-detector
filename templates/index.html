@@ -5,6 +5,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <div class="login-wrapper">
+        <a href="{{ url_for('login') }}"><button>Login</button></a>
+    </div>
     <div class="container">
         <h1>Word Database</h1>
         <form id="wordForm">

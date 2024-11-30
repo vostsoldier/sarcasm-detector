@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 import json
 import nltk
 from nltk.corpus import words
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'
 nltk.download('words')
 word_list = set(words.words())
 
@@ -22,6 +23,10 @@ def is_valid_word(word):
 def index():
     return render_template('index.html')
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 @app.route('/add_word', methods=['POST'])
 def add_word():
     word = request.form['word'].strip().lower()
@@ -38,4 +43,4 @@ def add_word():
     return jsonify({'status': 'success', 'message': 'Word added to the database.'})
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)

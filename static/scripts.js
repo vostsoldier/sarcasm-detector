@@ -19,7 +19,7 @@ document.getElementById('wordForm').addEventListener('submit', function(event) {
             messageElement.classList.add('explode');
             setTimeout(() => {
                 messageElement.classList.remove('explode');
-            }, 500);
+            }, 600);
         }, 300);
     });
 });

@@ -29,8 +29,17 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, #e0e0e0, #3a3a3a);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
 }
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .container {
     background-color: white;
     padding: 40px;
@@ -39,12 +48,15 @@ body {
     max-width: 400px;
     width: 100%;
     text-align: center;
+    position: relative;
 }
+
 h1 {
     margin-bottom: 20px;
     font-size: 24px;
     color: #343a40;
 }
+
 input[type="text"] {
     width: 100%;
     padding: 12px;
@@ -53,6 +65,7 @@ input[type="text"] {
     border-radius: 5px;
     font-size: 16px;
 }
+
 button {
     padding: 12px 20px;
     background-color: #007bff;
@@ -63,20 +76,46 @@ button {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+
 button:hover {
     background-color: #0056b3;
 }
+
 #message {
     margin-top: 20px;
     font-size: 18px;
     color: #28a745;
 }
+
 #message.error {
     color: #dc3545;
 }
-#message.pop {
+
+.pop {
     animation: pop 0.3s ease;
 }
-#message.explode {
-    animation: explode 0.5s ease;
+
+.explode {
+    animation: explode 0.6s ease;
+}
+
+.login-wrapper {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.login-wrapper a button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-wrapper a button:hover {
+    background-color: #0056b3;
 }
