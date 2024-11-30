@@ -129,9 +129,7 @@ def add_word():
         current_user.contributions += f',{word}'
     else:
         current_user.contributions = word
-    
-    # Award Word Coins
-    current_user.word_coins += 10  # Award 10 Word Coins for each contribution
+    current_user.word_coins += 10  
     db.session.commit()
     
     return jsonify({'status': 'success', 'message': 'Word added to the database.'})
@@ -142,7 +140,6 @@ def shop():
     items = [
         {'name': 'Background Color', 'cost': 50, 'type': 'background_color'},
         {'name': 'Profile Badge', 'cost': 100, 'type': 'profile_badge'},
-        # Add more items as needed
     ]
     return render_template('shop.html', items=items, word_coins=current_user.word_coins)
 
@@ -154,8 +151,6 @@ def redeem():
     
     if current_user.word_coins >= item_cost:
         current_user.word_coins -= item_cost
-        # Apply the aesthetic change based on item_type
-        # For example, update the user's profile or settings
         db.session.commit()
         flash('Item redeemed successfully!', 'success')
     else:
@@ -168,6 +163,11 @@ def user_profile(user_id):
     user = User.query.get_or_404(user_id)
     contributions = user.contributions.split(',') if user.contributions else []
     return render_template('user_profile.html', user=user, contributions=contributions)
+@app.route('/full_contributions')
+@login_required
+def full_contributions():
+    contributions = current_user.contributions.split(',') if current_user.contributions else []
+    return render_template('full_contributions.html', contributions=contributions)
 
 if __name__ == '__main__':
     with app.app_context():

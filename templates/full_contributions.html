@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Full Contributions</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="gradient-background"></div>
+    <a href="{{ url_for('profile') }}"><button class="back-button">Back</button></a>
+    <div class="container">
+        <h1>Full Contributions</h1>
+        <ul>
+            {% for word in contributions %}
+                <li>{{ word }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

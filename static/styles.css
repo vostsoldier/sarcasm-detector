@@ -136,7 +136,7 @@ button:hover {
     font-size: 18px;
     color: #28a745;
     position: relative;
-    z-index: 10; /* Ensure the message is above other content */
+    z-index: 10;
 }
 
 #message.error {
@@ -163,9 +163,11 @@ button:hover {
     position: absolute;
     top: 20px;
     right: 20px;
+    display: flex;
+    gap: 30px; /* Add gap between buttons */
 }
 
-.login-wrapper a button {
+.nav-button {
     padding: 10px 15px;
     background-color: #007bff;
     color: white;
@@ -176,7 +178,7 @@ button:hover {
     transition: background-color 0.3s ease;
 }
 
-.login-wrapper a button:hover {
+.nav-button:hover {
     background-color: #0056b3;
 }
 
@@ -237,7 +239,7 @@ button:hover {
     max-height: 400px;
     overflow-y: auto;
     overflow-x: hidden;
-    width: 400px; /* Increased width */
+    width: 400px;
 }
 
 .leaderboard h2 {
@@ -271,14 +273,14 @@ button:hover {
 }
 
 .word-of-the-day {
-    margin-top: 60px; /* Add margin to move it down */
+    margin-top: 60px;
     padding: 20px;
     background-color: #f8f9fa;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: left;
 }
-/* Popup styles */
+
 .popup {
     display: none;
     position: fixed;

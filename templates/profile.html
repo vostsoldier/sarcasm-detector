@@ -14,10 +14,13 @@
         <p>{{ get_flashed_messages() }}</p>
         <h3>Your Contributions:</h3>
         <ul>
-            {% for word in contributions %}
+            {% for word in contributions[:5] %}
                 <li>{{ word }}</li>
             {% endfor %}
         </ul>
+        {% if contributions|length > 5 %}
+            <a href="{{ url_for('full_contributions') }}"><button>See Full List</button></a>
+        {% endif %}
         <a href="{{ url_for('logout') }}"><button>Logout</button></a>
     </div>
 </body>
