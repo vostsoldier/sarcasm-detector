@@ -7,6 +7,12 @@ import nltk
 from nltk.corpus import words
 import random
 from datetime import datetime
+import ssl
+import certifi
+import nltk
+
+ssl._create_default_https_context = ssl._create_unverified_context
+ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
