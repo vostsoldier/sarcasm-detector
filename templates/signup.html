@@ -12,9 +12,8 @@
         <form method="POST">
             <input type="text" name="username" placeholder="Username" autocomplete="off" required>
             <input type="password" name="password" placeholder="Password" autocomplete="off" required>
-            <button type="submit">Sign Up</button>
+            <button class="button_class" type="submit">Sign Up</button>
         </form>
-        <p>{{ get_flashed_messages() }}</p>
         <p>Already have an account? <a href="{{ url_for('login') }}">Log in here</a></p>
     </div>
 </body>

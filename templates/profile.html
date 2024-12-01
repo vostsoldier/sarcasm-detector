@@ -11,7 +11,6 @@
         <h1>Profile</h1>
         <h2>Welcome, {{ current_user.username }}</h2>
         <p>Joined on: {{ current_user.date_joined.strftime('%B %d, %Y') }}</p>
-        <p>{{ get_flashed_messages() }}</p>
         <h3>Your Contributions:</h3>
         <ul>
             {% for word in contributions[:5] %}
@@ -19,9 +18,15 @@
             {% endfor %}
         </ul>
         {% if contributions|length > 5 %}
-            <a href="{{ url_for('full_contributions') }}"><button>See Full List</button></a>
+            <a href="{{ url_for('full_contributions') }}" class="button_class"><button class="button_class">See Full List</button></a>
         {% endif %}
-        <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+        <h3>Your Achievements:</h3>
+        <ul>
+            {% for achievement in current_user.achievements.split(',') %}
+                <li>{{ achievement }}</li>
+            {% endfor %}
+        </ul>
+        <a class="button_class" href="{{ url_for('logout') }}"><button class="button_class">Logout</button></a>
     </div>
 </body>
 </html>

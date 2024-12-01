@@ -19,7 +19,7 @@
             <h1>Word Vault</h1>
             <form id="wordForm">
                 <input type="text" id="word" name="word" placeholder="Enter a word" autocomplete="off">
-                <button type="submit">Add Word</button>
+                <button class="button_class" type="submit">Add Word</button>
             </form>
             <p id="message"></p>
             <div class="word-of-the-day">
@@ -32,6 +32,7 @@
                     <p>No words available.</p>
                 {% endif %}
             </div>
+            <a href="{{ url_for('word_game') }}" class="button_class"><button class="button_class margin">Play Word Game</button></a>
         </div>
         <div class="leaderboard">
             <h2>Leaderboard</h2>
@@ -50,6 +51,8 @@
             <button id="closeUpdates" class="close-button">x</button>
             <h2>Updates</h2>
             <p>Welcome to the latest updates! Here you can find the newest features and improvements.</p>
+            <p>Version 1.1:</p>
+            <p>Creation of this game!</p>
         </div>
     </div>
     <div id="howToPlayPopup" class="popup">

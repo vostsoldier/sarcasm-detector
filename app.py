@@ -10,7 +10,6 @@ from datetime import datetime
 import ssl
 import certifi
 import nltk
-
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 
@@ -34,6 +33,28 @@ class User(UserMixin, db.Model):
     contributions = db.Column(db.Text, nullable=True)
     date_joined = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     word_coins = db.Column(db.Integer, nullable=False, default=0)
+    achievements = db.Column(db.Text, nullable=True, default="")  # Ensure default value
+
+def check_and_award_achievements(user):
+    achievements = user.achievements.split(',') if user.achievements else []
+    contributions_count = len(user.contributions.split(',')) if user.contributions else 0
+
+    new_achievements = []
+
+    if contributions_count >= 1 and 'First Contribution' not in achievements:
+        new_achievements.append('First Contribution')
+
+    if contributions_count >= 10 and '10 Contributions' not in achievements:
+        new_achievements.append('10 Contributions')
+
+    if contributions_count >= 20 and '20 Contributions' not in achievements:
+        new_achievements.append('20 Contributions')
+
+    if new_achievements:
+        achievements.extend(new_achievements)
+        user.achievements = ','.join(achievements)
+        db.session.commit()
+        flash(f'New achievements unlocked: {", ".join(new_achievements)}', 'success')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -138,8 +159,8 @@ def add_word():
     current_user.word_coins += 10  
     db.session.commit()
     
+    check_and_award_achievements(current_user)
     return jsonify({'status': 'success', 'message': 'Word added to the database.'})
-
 @app.route('/shop')
 @login_required
 def shop():
@@ -169,11 +190,13 @@ def user_profile(user_id):
     user = User.query.get_or_404(user_id)
     contributions = user.contributions.split(',') if user.contributions else []
     return render_template('user_profile.html', user=user, contributions=contributions)
+
 @app.route('/full_contributions')
 @login_required
 def full_contributions():
     contributions = current_user.contributions.split(',') if current_user.contributions else []
     return render_template('full_contributions.html', contributions=contributions)
+
 @app.route('/word_game')
 @login_required
 def word_game():
@@ -183,6 +206,7 @@ def word_game():
     word_definitions = list(zip(words, definitions))
     random.shuffle(word_definitions) 
     return render_template('word_game.html', word_definitions=word_definitions)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
