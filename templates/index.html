@@ -8,9 +8,10 @@
     <div class="gradient-background"></div>
     <div class="login-wrapper">
         {% if current_user.is_authenticated %}
-            <a href="{{ url_for('profile') }}"><button>Profile</button></a>
+            <a href="{{ url_for('profile') }}" class="nav-link"><button class="nav-button">Profile</button></a>
+            <a href="{{ url_for('shop') }}" class="nav-link"><button class="nav-button">Shop</button></a>
         {% else %}
-            <a href="{{ url_for('login') }}"><button>Login</button></a>
+            <a href="{{ url_for('login') }}" class="nav-link"><button class="nav-button">Login</button></a>
         {% endif %}
     </div>
     <div class="main-content">
@@ -53,14 +54,6 @@
             </label>
             <button id="closePopup">Close</button>
         </div>
-    </div>
-    <div class="login-wrapper">
-        {% if current_user.is_authenticated %}
-            <a class="margin" href="{{ url_for('profile') }}"><button>Profile</button></a>
-            <a href="{{ url_for('shop') }}"><button>Shop</button></a>
-        {% else %}
-            <a href="{{ url_for('login') }}"><button>Login</button></a>
-        {% endif %}
     </div>
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>

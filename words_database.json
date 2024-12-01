@@ -27,6 +27,13 @@
         "laugh",
         "sound",
         "volume",
-        "luck"
+        "luck",
+        "happy",
+        "sad",
+        "girl",
+        "boy",
+        "unknown",
+        "calm",
+        "rest"
     ]
 }
