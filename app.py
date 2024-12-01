@@ -20,7 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'login' 
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
 nltk.download('words')
