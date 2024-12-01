@@ -168,7 +168,15 @@ def user_profile(user_id):
 def full_contributions():
     contributions = current_user.contributions.split(',') if current_user.contributions else []
     return render_template('full_contributions.html', contributions=contributions)
-
+@app.route('/word_game')
+@login_required
+def word_game():
+    database = load_database()
+    words = random.sample(database['words'], 5)  
+    definitions = [get_word_definition(word) for word in words]
+    word_definitions = list(zip(words, definitions))
+    random.shuffle(word_definitions) 
+    return render_template('word_game.html', word_definitions=word_definitions)
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

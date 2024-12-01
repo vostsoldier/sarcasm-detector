@@ -30,8 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const popup = document.getElementById('howToPlayPopup');
     const closePopupButton = document.getElementById('closePopup');
     const doNotShowAgainCheckbox = document.getElementById('doNotShowAgain');
-
-    // Check if the user has previously chosen to not show the popup
     if (!sessionStorage.getItem('doNotShowHowToPlay') && !sessionStorage.getItem('popupShown')) {
         popup.style.display = 'flex';
         sessionStorage.setItem('popupShown', 'true');
@@ -47,3 +45,30 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('closeUpdates').addEventListener('click', function() {
     document.getElementById('updates').style.display = 'none';
 });
+
+document.getElementById('wordGameForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const form = event.target;
+    const pairs = form.querySelectorAll('.word-game-pair');
+    let correct = 0;
+    pairs.forEach(pair => {
+        const select = pair.querySelector('select');
+        const selectedWord = select.value;
+        const definition = pair.querySelector('label').innerText;
+        if (getWordByDefinition(definition) === selectedWord) {
+            correct++;
+        }
+    });
+    const messageElement = document.getElementById('gameMessage');
+    messageElement.innerText = `You got ${correct} out of ${pairs.length} correct!`;
+});
+
+function getWordByDefinition(definition) {
+    const wordDefinitions = JSON.parse(document.getElementById('wordDefinitions').textContent);
+    for (const [word, def] of Object.entries(wordDefinitions)) {
+        if (def === definition) {
+            return word;
+        }
+    }
+    return null;
+}

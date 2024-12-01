@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Word Game</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="gradient-background"></div>
+    <a href="{{ url_for('index') }}"><button class="back-button">Back</button></a>
+    <div class="container">
+        <h1>Word Game</h1>
+        <form id="wordGameForm">
+            {% for word, definition in word_definitions %}
+                <div class="word-game-pair">
+                    <label>{{ definition }}</label>
+                    <select name="word">
+                        <option value="">Select a word</option>
+                        {% for w, _ in word_definitions %}
+                            <option value="{{ w }}">{{ w }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endfor %}
+            <button type="submit">Submit</button>
+        </form>
+        <p id="gameMessage"></p>
+    </div>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>

@@ -359,7 +359,7 @@ button:hover {
     position: relative;
     text-align: left;
 }
-
+/*CHANGE THIS TO CHANGE THE CLOSE BUTTON POSITION*/
 .close-button {
     position: absolute;
     top: -20px;
@@ -386,4 +386,22 @@ button:hover {
     font-size: 14px;
     color: #343a40;
     line-height: 1.5;
+}
+.word-game-pair {
+    margin-bottom: 20px;
+}
+
+.word-game-pair label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 16px;
+    color: #343a40;
+}
+
+.word-game-pair select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
 }
