@@ -44,3 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         popup.style.display = 'none';
     });
 });
+document.getElementById('closeUpdates').addEventListener('click', function() {
+    document.getElementById('updates').style.display = 'none';
+});

@@ -342,3 +342,48 @@ button:hover {
 .popup-content button:hover {
     background-color: #0056b3;
 }
+.updates-tab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
+    z-index: 1000;
+    border: 1px solid #ddd;
+}
+
+.updates-content {
+    position: relative;
+    text-align: left;
+}
+
+.close-button {
+    position: absolute;
+    top: -20px;
+    right: -10px;
+    background-color: transparent;
+    color: #dc3545;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover {
+    color: #c82333;
+}
+
+.updates-content h2 {
+    margin-top: 0;
+    font-size: 20px;
+    color: #343a40;
+}
+
+.updates-content p {
+    font-size: 14px;
+    color: #343a40;
+    line-height: 1.5;
+}
