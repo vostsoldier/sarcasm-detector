@@ -10,6 +10,7 @@ from datetime import datetime
 import ssl
 import certifi
 import nltk
+from flask import url_for
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 
@@ -42,20 +43,21 @@ def check_and_award_achievements(user):
     new_achievements = []
 
     if contributions_count >= 1 and 'First Contribution' not in achievements:
-        new_achievements.append('First Contribution')
+        new_achievements.append({'name': 'First Contribution', 'image': url_for('static', filename='images/achievements/first_contribution.png')})
 
     if contributions_count >= 10 and '10 Contributions' not in achievements:
-        new_achievements.append('10 Contributions')
+        new_achievements.append({'name': '10 Contributions', 'image': url_for('static', filename='images/achievements/ten_contributions.png')})
 
     if contributions_count >= 20 and '20 Contributions' not in achievements:
-        new_achievements.append('20 Contributions')
+        new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
 
     if new_achievements:
-        achievements.extend(new_achievements)
+        achievements.extend([ach['name'] for ach in new_achievements])
         user.achievements = ','.join(achievements)
         db.session.commit()
-        flash(f'New achievements unlocked: {", ".join(new_achievements)}', 'success')
-
+        flash(f'New achievements unlocked: {", ".join([ach["name"] for ach in new_achievements])}', 'success')
+    
+    return new_achievements
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -159,8 +161,9 @@ def add_word():
     current_user.word_coins += 10  
     db.session.commit()
     
-    check_and_award_achievements(current_user)
-    return jsonify({'status': 'success', 'message': 'Word added to the database.'})
+    new_achievements = check_and_award_achievements(current_user)
+    
+    return jsonify({'status': 'success', 'message': 'Word added to the database.', 'new_achievements': new_achievements})
 @app.route('/shop')
 @login_required
 def shop():

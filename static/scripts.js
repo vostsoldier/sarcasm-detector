@@ -24,8 +24,30 @@ document.getElementById('wordForm').addEventListener('submit', function(event) {
                 messageElement.classList.remove('bounce');
             }, 500);
         }
+
+        if (data.new_achievements && data.new_achievements.length > 0) {
+            showNotification(data.new_achievements);
+            confetti();
+        }
     });
 });
+
+function showNotification(achievements) {
+    const notification = document.getElementById('notification');
+    notification.innerHTML = achievements.map(ach => `<img src="${ach.image}" alt="${ach.name}"> ${ach.name}`).join('<br>');
+    notification.style.display = 'block';
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 5000);
+}
+
+function confetti() {
+    confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+    });
+}
 document.addEventListener('DOMContentLoaded', function() {
     const popup = document.getElementById('howToPlayPopup');
     const closePopupButton = document.getElementById('closePopup');

@@ -22,7 +22,7 @@
         {% endif %}
         <h3>Your Achievements:</h3>
         <ul>
-            {% for achievement in current_user.achievements.split(',') %}
+            {% for achievement in (current_user.achievements or "").split(',') %}
                 <li>{{ achievement }}</li>
             {% endfor %}
         </ul>

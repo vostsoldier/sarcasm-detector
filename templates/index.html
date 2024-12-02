@@ -3,6 +3,7 @@
 <head>
     <title>Word Database</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
     <div class="gradient-background"></div>
@@ -46,6 +47,7 @@
             </ul>
         </div>
     </div>
+    <div id="notification" class="notification"></div>
     <div id="updates" class="updates-tab">
         <div class="updates-content">
             <button id="closeUpdates" class="close-button">x</button>
