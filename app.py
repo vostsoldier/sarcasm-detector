@@ -209,6 +209,30 @@ def word_game():
     word_definitions = list(zip(words, definitions))
     random.shuffle(word_definitions) 
     return render_template('word_game.html', word_definitions=word_definitions)
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        if username:
+            current_user.username = username
+        if password:
+            current_user.password = password
+        
+        db.session.commit()
+        flash('Your profile has been updated!', 'success')
+        return redirect(url_for('settings'))
+    
+    return render_template('settings.html')
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        search_query = request.form['search_query']
+        users = User.query.filter(User.username.contains(search_query)).all()
+        return render_template('search_results.html', users=users, search_query=search_query)
+    return render_template('search.html')
 
 if __name__ == '__main__':
     with app.app_context():
