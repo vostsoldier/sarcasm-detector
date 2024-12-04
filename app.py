@@ -10,6 +10,7 @@ from datetime import datetime
 import ssl
 import certifi
 import nltk
+from datetime import date
 from flask import url_for
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
@@ -34,7 +35,13 @@ class User(UserMixin, db.Model):
     contributions = db.Column(db.Text, nullable=True)
     date_joined = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     word_coins = db.Column(db.Integer, nullable=False, default=0)
-    achievements = db.Column(db.Text, nullable=True, default="")  # Ensure default value
+    achievements = db.Column(db.Text, nullable=True, default="")
+    words_entered_today = db.Column(db.Integer, nullable=False, default=0)
+    last_word_entry_date = db.Column(db.Date, nullable=True)
+class WordOfTheDay(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String(150), nullable=False)
+    date = db.Column(db.Date, nullable=False, unique=True)
 
 def check_and_award_achievements(user):
     achievements = user.achievements.split(',') if user.achievements else []
@@ -62,10 +69,16 @@ def check_and_award_achievements(user):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-def load_database():
-    with open('words_database.json', 'r') as file:
-        return json.load(file)
+import json
 
+def load_database():
+    try:
+        with open('words_database.json', 'r') as file:
+            return json.load(file)
+    except json.JSONDecodeError:
+        return {"words": []}
+    except FileNotFoundError:
+        return {"words": []}
 def save_database(data):
     with open('words_database.json', 'w') as file:
         json.dump(data, file, indent=4)
@@ -81,10 +94,20 @@ def get_word_definition(word):
     return placeholder_definition
 
 def get_word_of_the_day():
-    database = load_database()
-    if not database['words']:
-        return None, None, None
-    word = random.choice(database['words'])
+    today = date.today()
+    word_of_the_day_entry = WordOfTheDay.query.filter_by(date=today).first()
+    
+    if word_of_the_day_entry:
+        word = word_of_the_day_entry.word
+    else:
+        database = load_database()
+        if not database['words']:
+            return None, None, None
+        word = random.choice(database['words'])
+        new_word_of_the_day = WordOfTheDay(word=word, date=today)
+        db.session.add(new_word_of_the_day)
+        db.session.commit()
+    
     user = User.query.filter(User.contributions.like(f"%{word}%")).first()
     definition = get_word_definition(word)
     return word, user.username if user else "Unknown", definition
@@ -137,33 +160,6 @@ def logout():
 def profile():
     contributions = current_user.contributions.split(',') if current_user.contributions else []
     return render_template('profile.html', contributions=contributions)
-
-@app.route('/add_word', methods=['POST'])
-def add_word():
-    if not current_user.is_authenticated:
-        return jsonify({'status': 'error', 'message': 'Please sign in to add a word.'})
-    
-    word = request.form['word'].strip().lower()
-    database = load_database()
-    
-    if word in database['words']:
-        return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
-    if not is_valid_word(word):
-        return jsonify({'status': 'error', 'message': 'Invalid word.'})
-    
-    database['words'].append(word)
-    save_database(database)
-    
-    if current_user.contributions:
-        current_user.contributions += f',{word}'
-    else:
-        current_user.contributions = word
-    current_user.word_coins += 10  
-    db.session.commit()
-    
-    new_achievements = check_and_award_achievements(current_user)
-    
-    return jsonify({'status': 'success', 'message': 'Word added to the database.', 'new_achievements': new_achievements})
 @app.route('/shop')
 @login_required
 def shop():
@@ -234,6 +230,40 @@ def search():
         return render_template('search_results.html', users=users, search_query=search_query)
     return render_template('search.html')
 
+@app.route('/add_word', methods=['POST'])
+def add_word():
+    if not current_user.is_authenticated:
+        return jsonify({'status': 'error', 'message': 'Please sign in to add a word.'})
+    
+    word = request.form['word'].strip().lower()
+    database = load_database()
+    
+    if word in database['words']:
+        return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
+    if not is_valid_word(word):
+        return jsonify({'status': 'error', 'message': 'Invalid word.'})
+    
+    if current_user.last_word_entry_date != date.today():
+        current_user.words_entered_today = 0
+        current_user.last_word_entry_date = date.today()
+    
+    if current_user.words_entered_today >= 100:  
+        return jsonify({'status': 'error', 'message': 'You have reached the daily limit for entering words.'})
+    
+    database['words'].append(word)
+    save_database(database)
+    
+    if current_user.contributions:
+        current_user.contributions += f',{word}'
+    else:
+        current_user.contributions = word
+    current_user.word_coins += 10
+    current_user.words_entered_today += 1
+    db.session.commit()
+    
+    new_achievements = check_and_award_achievements(current_user)
+    
+    return jsonify({'status': 'success', 'message': 'Word added to the database.', 'new_achievements': new_achievements})
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
