@@ -25,7 +25,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login' 
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
-
+nltk.data.path.append('/tmp/nltk_data')
 word_list = set(words.words())
 definition_cache = {}
 
