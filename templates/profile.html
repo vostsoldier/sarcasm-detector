@@ -18,7 +18,7 @@
             {% endfor %}
         </ul>
         {% if contributions|length > 5 %}
-            <a href="{{ url_for('full_contributions') }}" class="button_class"><button class="button_class">See Full List</button></a>
+            <a href="{{ url_for('full_contributions', user_id=current_user.id) }}" class="button_class"><button class="button_class">See Full List</button></a>
         {% endif %}
         <h3>Your Achievements:</h3>
         <ul>

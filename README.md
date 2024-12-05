@@ -4,7 +4,25 @@ Try to input unique words never seen before!
 
 ***DEVELOPER TODO***
 Please feel free to send any changes that are listed below! Much appreciated!
-Add images for achievments
-Expand on the word game and add more features/aesthetics (Needs a better system) 
-Just make it look better...  
-Add an aspect ratio of 1 to 1 for the achievements...
+**Finish:**
+-Shop and Word game functionality
+-Hosting solution - figure out how the fuck to use vercel
+**Fix:**
+
+**Create:**
+-Filters (limit slurs+language)
+-Feature request
+-PFPs in profiles
+-Roles that can be earned from acheivements+easter eggs
+-Events (random+set from entering words (easter eggs))
+**Update**
+-The update notif thingy
+-Different leaderboards for different things (Tab on top switchable dunno)
+-Use another dictionary api (Webster is crap and limits to 1k per month + poor)
+**Add later on**
+-streaks???
+-chat system???
+
+**Done but need to check**
+-Add word entering limit
+-Word of the day stays the same

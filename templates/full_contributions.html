@@ -6,14 +6,14 @@
 </head>
 <body>
     <div class="gradient-background"></div>
-    <a href="{{ url_for('profile') }}"><button class="back-button">Back</button></a>
+    <a href="{{ url_for('user_profile', user_id=user.id) }}"><button class="back-button">Back</button></a>
     <div class="container">
         <h1>Full Contributions</h1>
-        <ul>
+        <div class="contributions-list">
             {% for word in contributions %}
-                <li>{{ word }}</li>
+                <div class="contribution-item">{{ word }}</div>
             {% endfor %}
-        </ul>
+        </div>
     </div>
 </body>
 </html>

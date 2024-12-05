@@ -2,16 +2,14 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_migrate import Migrate
-import json
+from datetime import datetime
+from datetime import date
 import nltk
 from nltk.corpus import words
-import random
-from datetime import datetime
 import ssl
 import certifi
-import nltk
-from datetime import date
-from flask import url_for
+import json
+import random
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 
@@ -38,6 +36,7 @@ class User(UserMixin, db.Model):
     achievements = db.Column(db.Text, nullable=True, default="")
     words_entered_today = db.Column(db.Integer, nullable=False, default=0)
     last_word_entry_date = db.Column(db.Date, nullable=True)
+
 class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
@@ -57,7 +56,9 @@ def check_and_award_achievements(user):
 
     if contributions_count >= 20 and '20 Contributions' not in achievements:
         new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
-
+        
+    if contributions_count >= 20 and '20 Contributions' not in achievements:
+        new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
     if new_achievements:
         achievements.extend([ach['name'] for ach in new_achievements])
         user.achievements = ','.join(achievements)
@@ -190,11 +191,12 @@ def user_profile(user_id):
     contributions = user.contributions.split(',') if user.contributions else []
     return render_template('user_profile.html', user=user, contributions=contributions)
 
-@app.route('/full_contributions')
+@app.route('/full_contributions/<int:user_id>')
 @login_required
-def full_contributions():
-    contributions = current_user.contributions.split(',') if current_user.contributions else []
-    return render_template('full_contributions.html', contributions=contributions)
+def full_contributions(user_id):
+    user = User.query.get_or_404(user_id)
+    contributions = user.contributions.split(',') if user.contributions else []
+    return render_template('full_contributions.html', contributions=contributions, user=user)
 
 @app.route('/word_game')
 @login_required

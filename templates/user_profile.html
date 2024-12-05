@@ -12,8 +12,17 @@
         <p>Joined on: {{ user.date_joined.strftime('%B %d, %Y') }}</p>
         <h3>Contributions:</h3>
         <ul>
-            {% for word in contributions %}
+            {% for word in contributions[:5] %}
                 <li>{{ word }}</li>
+            {% endfor %}
+        </ul>
+        {% if contributions|length > 5 %}
+            <a href="{{ url_for('full_contributions', user_id=user.id) }}" class="button_class"><button class="button_class">See Full List</button></a>
+        {% endif %}
+        <h3>Achievements:</h3>
+        <ul>
+            {% for achievement in (user.achievements or "").split(',') %}
+                <li>{{ achievement }}</li>
             {% endfor %}
         </ul>
     </div>
