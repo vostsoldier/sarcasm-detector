@@ -11,7 +11,7 @@ import certifi
 import json
 import random
 import os
-nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
+nltk_data_dir = os.path.join(os.getenv('HOME', '/tmp'), 'nltk_data')
 os.makedirs(nltk_data_dir, exist_ok=True)
 nltk.data.path.append(nltk_data_dir)
 ssl._create_default_https_context = ssl._create_unverified_context
