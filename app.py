@@ -11,11 +11,12 @@ import certifi
 import json
 import random
 import os
+ssl._create_default_https_context = ssl._create_unverified_context
+ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 nltk_data_dir = os.path.join('/tmp', 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -25,10 +26,12 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login' 
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
-nltk.data.path.append('/tmp/nltk_data')
+nltk.download('words')
 word_list = set(words.words())
 definition_cache = {}
-
+blacklisted_words = ["badword1", "badword2", "badword3"]  
+blacklisted_usernames = ["admin", "root", "superuser"]  
+forbidden_keywords = ["admin", "root", "superuser"] 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -59,7 +62,8 @@ def check_and_award_achievements(user):
 
     if contributions_count >= 20 and '20 Contributions' not in achievements:
         new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
-        
+    if contributions_count >= 20 and '20 Contributions' not in achievements:
+        new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
     if new_achievements:
         achievements.extend([ach['name'] for ach in new_achievements])
         user.achievements = ','.join(achievements)
@@ -72,6 +76,10 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 import json
+def is_blacklisted(word, blacklist):
+    return word.lower() in blacklist
+def contains_forbidden_keyword(username, keywords):
+    return any(keyword in username.lower() for keyword in keywords)
 
 def load_database():
     try:
@@ -133,24 +141,6 @@ def login():
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html')
-
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user is None:
-            new_user = User(username=username, password=password, date_joined=datetime.utcnow())
-            db.session.add(new_user)
-            db.session.commit()
-            login_user(new_user)
-            flash('Thank you for creating an account!', 'success')
-            return redirect(url_for('profile'))
-        else:
-            flash('Username already exists. Please choose a different one.', 'danger')
-    return render_template('signup.html')
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -208,23 +198,6 @@ def word_game():
     word_definitions = list(zip(words, definitions))
     random.shuffle(word_definitions) 
     return render_template('word_game.html', word_definitions=word_definitions)
-@app.route('/settings', methods=['GET', 'POST'])
-@login_required
-def settings():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        if username:
-            current_user.username = username
-        if password:
-            current_user.password = password
-        
-        db.session.commit()
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('settings'))
-    
-    return render_template('settings.html')
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
@@ -240,6 +213,9 @@ def add_word():
     
     word = request.form['word'].strip().lower()
     database = load_database()
+    
+    if is_blacklisted(word, blacklisted_words):
+        return jsonify({'status': 'error', 'message': 'Invalid word.'})
     
     if word in database['words']:
         return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
@@ -267,6 +243,49 @@ def add_word():
     new_achievements = check_and_award_achievements(current_user)
     
     return jsonify({'status': 'success', 'message': 'Word added to the database.', 'new_achievements': new_achievements})
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        password = request.form['password'].strip()
+        
+        if contains_forbidden_keyword(username, forbidden_keywords):
+            flash('Invalid username.', 'danger')
+            return redirect(url_for('signup'))
+        
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists.', 'danger')
+            return redirect(url_for('signup'))
+        
+        new_user = User(username=username, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+        return redirect(url_for('profile'))
+    
+    return render_template('signup.html')
+
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        password = request.form['password'].strip()
+        
+        if username and contains_forbidden_keyword(username, forbidden_keywords):
+            flash('Invalid username.', 'danger')
+            return redirect(url_for('settings'))
+        
+        if username:
+            current_user.username = username
+        if password:
+            current_user.password = password
+        
+        db.session.commit()
+        flash('Your profile has been updated!', 'success')
+        return redirect(url_for('settings'))
+    
+    return render_template('settings.html')
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
