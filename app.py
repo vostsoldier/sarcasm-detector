@@ -12,11 +12,9 @@ import json
 import random
 import os
 nltk_data_dir = os.path.join('/tmp', 'nltk_data')
-os.makedirs(nltk_data_dir, exist_ok=True)
 nltk.data.path.append(nltk_data_dir)
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
-nltk.download('words', download_dir=nltk_data_dir)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -27,7 +25,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login' 
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
-nltk.download('words')
+
 word_list = set(words.words())
 definition_cache = {}
 
@@ -62,8 +60,6 @@ def check_and_award_achievements(user):
     if contributions_count >= 20 and '20 Contributions' not in achievements:
         new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
         
-    if contributions_count >= 20 and '20 Contributions' not in achievements:
-        new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
     if new_achievements:
         achievements.extend([ach['name'] for ach in new_achievements])
         user.achievements = ','.join(achievements)
