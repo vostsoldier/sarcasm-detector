@@ -5,10 +5,9 @@ Try to input unique words never seen before!
 ***DEVELOPER TODO***
 Please feel free to send any changes that are listed below! Much appreciated!
 **Finish:**
--Shop and Word game functionality
 -Hosting solution - figure out how the fuck to use vercel
 **Fix:**
-
+-Fix shop 
 **Create:**
 -Filters (limit slurs+language)
 -Feature request
@@ -16,13 +15,14 @@ Please feel free to send any changes that are listed below! Much appreciated!
 -Roles that can be earned from acheivements+easter eggs
 -Events (random+set from entering words (easter eggs))
 **Update**
--The update notif thingy
--Different leaderboards for different things (Tab on top switchable dunno)
 -Use another dictionary api (Webster is crap and limits to 1k per month + poor)
+-When a user enters a new word, delete word from input 
 **Add later on**
 -streaks???
 -chat system???
-
+-Different leaderboards for different things (Tab on top switchable dunno)
+-Add club competitions + groups + min req for joining/creating
+-funny corny stuff
+-add more achievements tiers 
+-only show update list when new update drops
 **Done but need to check**
--Add word entering limit
--Word of the day stays the same

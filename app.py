@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -11,13 +12,10 @@ import certifi
 import json
 import random
 import os
-
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
-
 nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -25,15 +23,11 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
-# API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
-
 word_list = set(words.words())
 definition_cache = {}
 blacklisted_words = ["badword1", "badword2", "badword3"]
 forbidden_keywords = ["admin", "root", "superuser"]
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -207,43 +201,49 @@ def search():
         return render_template('search_results.html', users=users, search_query=search_query)
     return render_template('search.html')
 
+# app.py
+
 @app.route('/add_word', methods=['POST'])
 def add_word():
-    if not current_user.is_authenticated:
-        return jsonify({'status': 'error', 'message': 'Please sign in to add a word.'})
-    
-    word = request.form['word'].strip().lower()
-    database = load_database()
-    
-    if is_blacklisted(word, blacklisted_words):
-        return jsonify({'status': 'error', 'message': 'Invalid word.'})
-    
-    if word in database['words']:
-        return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
-    if not is_valid_word(word):
-        return jsonify({'status': 'error', 'message': 'Invalid word.'})
-    
-    if current_user.last_word_entry_date != date.today():
-        current_user.words_entered_today = 0
-        current_user.last_word_entry_date = date.today()
-    
-    if current_user.words_entered_today >= 100:  
-        return jsonify({'status': 'error', 'message': 'You have reached the daily limit for entering words.'})
-    
-    database['words'].append(word)
-    save_database(database)
-    
-    if current_user.contributions:
-        current_user.contributions += f',{word}'
-    else:
-        current_user.contributions = word
-    current_user.word_coins += 10
-    current_user.words_entered_today += 1
-    db.session.commit()
-    
-    new_achievements = check_and_award_achievements(current_user)
-    
-    return jsonify({'status': 'success', 'message': 'Word added to the database.', 'new_achievements': new_achievements})
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'status': 'error', 'message': 'Please sign in to add a word.'})
+        
+        word = request.form['word'].strip().lower()
+        database = load_database()
+        
+        if is_blacklisted(word, blacklisted_words):
+            return jsonify({'status': 'error', 'message': 'Invalid word.'})
+        
+        if word in database['words']:
+            return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
+        if not is_valid_word(word):
+            return jsonify({'status': 'error', 'message': 'Invalid word.'})
+        
+        if current_user.last_word_entry_date != date.today():
+            current_user.words_entered_today = 0
+            current_user.last_word_entry_date = date.today()
+        
+        if current_user.words_entered_today >= 100:  
+            return jsonify({'status': 'error', 'message': 'You have reached the daily limit for entering words.'})
+        
+        database['words'].append(word)
+        save_database(database)
+        
+        if current_user.contributions:
+            current_user.contributions += f',{word}'
+        else:
+            current_user.contributions = word
+        current_user.word_coins += 10
+        current_user.words_entered_today += 1
+        db.session.commit()
+        
+        new_achievements = check_and_award_achievements(current_user)
+        
+        return jsonify({'status': 'success', 'message': 'Word added to the database.', 'new_achievements': new_achievements})
+    except Exception as e:
+        app.logger.error(f"Error in add_word function: {e}")
+        return jsonify({'status': 'error', 'message': 'An error occurred while adding the word.'})
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
