@@ -11,27 +11,29 @@ import certifi
 import json
 import random
 import os
+
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+
 nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
-ssl._create_default_https_context = ssl._create_unverified_context
-ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
-login_manager.login_view = 'login' 
+login_manager.login_view = 'login'
+
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
-nltk.download('words')
+
 word_list = set(words.words())
 definition_cache = {}
-blacklisted_words = ["badword1", "badword2", "badword3"]  
-blacklisted_usernames = ["admin", "root", "superuser"]  
-forbidden_keywords = ["admin", "root", "superuser"] 
+blacklisted_words = ["badword1", "badword2", "badword3"]
+forbidden_keywords = ["admin", "root", "superuser"]
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -47,7 +49,6 @@ class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
     date = db.Column(db.Date, nullable=False, unique=True)
-
 def check_and_award_achievements(user):
     achievements = user.achievements.split(',') if user.achievements else []
     contributions_count = len(user.contributions.split(',')) if user.contributions else 0
