@@ -10,8 +10,13 @@ import ssl
 import certifi
 import json
 import random
+import os
+nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
+os.makedirs(nltk_data_dir, exist_ok=True)
+nltk.data.path.append(nltk_data_dir)
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
+nltk.download('words', download_dir=nltk_data_dir)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
