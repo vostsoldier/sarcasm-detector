@@ -1,6 +1,3 @@
-
-# app.py
-
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -14,9 +11,11 @@ import certifi
 import json
 import random
 import os
+
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
-nltk_data_dir = os.path.join('/tmp', 'nltk_data')
+
+nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
 
 app = Flask(__name__)
@@ -50,6 +49,7 @@ class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
     date = db.Column(db.Date, nullable=False, unique=True)
+
 def check_and_award_achievements(user):
     achievements = user.achievements.split(',') if user.achievements else []
     contributions_count = len(user.contributions.split(',')) if user.contributions else 0
