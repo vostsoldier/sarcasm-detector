@@ -21,7 +21,7 @@ instance_path = os.path.join(os.getcwd(), 'instance')
 os.makedirs(instance_path, exist_ok=True)
 app = Flask(__name__, instance_path=instance_path)
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "users.db")}'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
@@ -50,7 +50,10 @@ class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
     date = db.Column(db.Date, nullable=False, unique=True)
-
+def is_blacklisted(word, blacklist):
+    return word.lower() in blacklist
+def contains_forbidden_keyword(username, keywords):
+    return any(keyword in username.lower() for keyword in keywords)
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
@@ -80,10 +83,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 import json
-def is_blacklisted(word, blacklist):
-    return word.lower() in blacklist
-def contains_forbidden_keyword(username, keywords):
-    return any(keyword in username.lower() for keyword in keywords)
 
 def load_database():
     try:
@@ -209,9 +208,6 @@ def search():
         users = User.query.filter(User.username.contains(search_query)).all()
         return render_template('search_results.html', users=users, search_query=search_query)
     return render_template('search.html')
-
-# app.py
-
 @app.route('/add_word', methods=['POST'])
 def add_word():
     try:
