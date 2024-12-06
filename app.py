@@ -10,11 +10,16 @@ import certifi
 import json
 import random
 import os
-
+nltk_data_dir = os.path.join('/tmp', 'nltk_data')
+os.makedirs(nltk_data_dir, exist_ok=True)
+nltk.data.path.append(nltk_data_dir)
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
-nltk_data_dir = os.path.join('/tmp', 'nltk_data')
-nltk.data.path.append(nltk_data_dir)
+try:
+    word_list = set(words.words())
+except LookupError:
+    nltk.download('words', download_dir=nltk_data_dir)
+    word_list = set(words.words())
 instance_path = os.path.join('/tmp', 'instance')
 os.makedirs(instance_path, exist_ok=True)
 
