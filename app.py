@@ -2,8 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_migrate import Migrate
-from datetime import datetime
-from datetime import date
+from datetime import datetime, date
 import nltk
 from nltk.corpus import words
 import ssl
@@ -15,10 +14,10 @@ import os
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 nltk_data_dir = os.path.join('/tmp', 'nltk_data')
-nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
-instance_path = os.path.join(os.getcwd(), 'instance')
+instance_path = os.path.join('/tmp', 'instance')
 os.makedirs(instance_path, exist_ok=True)
+
 app = Flask(__name__, instance_path=instance_path)
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "users.db")}'
@@ -29,10 +28,7 @@ login_manager.login_view = 'login'
 
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
-def is_blacklisted(word, blacklist):
-    return word.lower() in blacklist
-def contains_forbidden_keyword(username, keywords):
-    return any(keyword in username.lower() for keyword in keywords)
+
 word_list = set(words.words())
 definition_cache = {}
 blacklisted_words = ["badword1", "badword2", "badword3"]
@@ -53,6 +49,7 @@ class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
     date = db.Column(db.Date, nullable=False, unique=True)
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
@@ -71,12 +68,15 @@ def check_and_award_achievements(user):
 
     if contributions_count >= 20 and '20 Contributions' not in achievements:
         new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
+
     if new_achievements:
         achievements.extend([ach['name'] for ach in new_achievements])
         user.achievements = ','.join(achievements)
         db.session.commit()
         flash(f'New achievements unlocked: {", ".join([ach["name"] for ach in new_achievements])}', 'success')
+
     return new_achievements
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -91,6 +91,7 @@ def load_database():
         return {"words": []}
     except FileNotFoundError:
         return {"words": []}
+
 def save_database(data):
     with open('words_database.json', 'w') as file:
         json.dump(data, file, indent=4)
@@ -108,7 +109,7 @@ def get_word_definition(word):
 def get_word_of_the_day():
     today = date.today()
     word_of_the_day_entry = WordOfTheDay.query.filter_by(date=today).first()
-    
+
     if word_of_the_day_entry:
         word = word_of_the_day_entry.word
     else:
@@ -119,7 +120,7 @@ def get_word_of_the_day():
         new_word_of_the_day = WordOfTheDay(word=word, date=today)
         db.session.add(new_word_of_the_day)
         db.session.commit()
-    
+
     user = User.query.filter(User.contributions.like(f"%{word}%")).first()
     definition = get_word_definition(word)
     return word, user.username if user else "Unknown", definition
@@ -143,6 +144,7 @@ def login():
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html')
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -154,6 +156,7 @@ def logout():
 def profile():
     contributions = current_user.contributions.split(',') if current_user.contributions else []
     return render_template('profile.html', contributions=contributions)
+
 @app.route('/shop')
 @login_required
 def shop():
@@ -168,14 +171,14 @@ def shop():
 def redeem():
     item_type = request.form['item_type']
     item_cost = int(request.form['item_cost'])
-    
+
     if current_user.word_coins >= item_cost:
         current_user.word_coins -= item_cost
         db.session.commit()
         flash('Item redeemed successfully!', 'success')
     else:
         flash('Not enough Word Coins.', 'danger')
-    
+
     return redirect(url_for('shop'))
 
 @app.route('/user/<int:user_id>')
@@ -195,45 +198,39 @@ def full_contributions(user_id):
 @login_required
 def word_game():
     database = load_database()
-    words = random.sample(database['words'], 5)  
+    words = random.sample(database['words'], 5)
     definitions = [get_word_definition(word) for word in words]
     word_definitions = list(zip(words, definitions))
-    random.shuffle(word_definitions) 
+    random.shuffle(word_definitions)
     return render_template('word_game.html', word_definitions=word_definitions)
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    if request.method == 'POST':
-        search_query = request.form['search_query']
-        users = User.query.filter(User.username.contains(search_query)).all()
-        return render_template('search_results.html', users=users, search_query=search_query)
-    return render_template('search.html')
+
 @app.route('/add_word', methods=['POST'])
 def add_word():
     try:
         if not current_user.is_authenticated:
             return jsonify({'status': 'error', 'message': 'Please sign in to add a word.'})
-        
+
         word = request.form['word'].strip().lower()
         database = load_database()
-        
+
         if is_blacklisted(word, blacklisted_words):
             return jsonify({'status': 'error', 'message': 'Invalid word.'})
-        
+
         if word in database['words']:
             return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
         if not is_valid_word(word):
             return jsonify({'status': 'error', 'message': 'Invalid word.'})
-        
+
         if current_user.last_word_entry_date != date.today():
             current_user.words_entered_today = 0
             current_user.last_word_entry_date = date.today()
-        
-        if current_user.words_entered_today >= 100:  
+
+        if current_user.words_entered_today >= 100:
             return jsonify({'status': 'error', 'message': 'You have reached the daily limit for entering words.'})
-        
+
         database['words'].append(word)
         save_database(database)
-        
+
         if current_user.contributions:
             current_user.contributions += f',{word}'
         else:
@@ -241,33 +238,34 @@ def add_word():
         current_user.word_coins += 10
         current_user.words_entered_today += 1
         db.session.commit()
-        
+
         new_achievements = check_and_award_achievements(current_user)
-        
+
         return jsonify({'status': 'success', 'message': 'Word added to the database.', 'new_achievements': new_achievements})
     except Exception as e:
         app.logger.error(f"Error in add_word function: {e}")
         return jsonify({'status': 'error', 'message': 'An error occurred while adding the word.'})
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password'].strip()
-        
+
         if contains_forbidden_keyword(username, forbidden_keywords):
             flash('Invalid username.', 'danger')
             return redirect(url_for('signup'))
-        
+
         if User.query.filter_by(username=username).first():
             flash('Username already exists.', 'danger')
             return redirect(url_for('signup'))
-        
+
         new_user = User(username=username, password=password)
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
         return redirect(url_for('profile'))
-    
+
     return render_template('signup.html')
 
 @app.route('/settings', methods=['GET', 'POST'])
@@ -276,21 +274,30 @@ def settings():
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password'].strip()
-        
+
         if username and contains_forbidden_keyword(username, forbidden_keywords):
             flash('Invalid username.', 'danger')
             return redirect(url_for('settings'))
-        
+
         if username:
             current_user.username = username
         if password:
             current_user.password = password
-        
+
         db.session.commit()
         flash('Your profile has been updated!', 'success')
         return redirect(url_for('settings'))
-    
+
     return render_template('settings.html')
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        search_query = request.form['search_query']
+        users = User.query.filter(User.username.contains(search_query)).all()
+        return render_template('search_results.html', users=users, search_query=search_query)
+    return render_template('search.html')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
