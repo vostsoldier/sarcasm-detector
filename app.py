@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_migrate import Migrate
@@ -11,6 +11,7 @@ import certifi
 import json
 import random
 import os
+
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
 nltk_data_dir = os.path.join('/tmp', 'nltk_data')
@@ -49,6 +50,10 @@ class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
     date = db.Column(db.Date, nullable=False, unique=True)
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 def check_and_award_achievements(user):
     achievements = user.achievements.split(',') if user.achievements else []
