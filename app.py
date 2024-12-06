@@ -21,7 +21,7 @@ instance_path = os.path.join(os.getcwd(), 'instance')
 os.makedirs(instance_path, exist_ok=True)
 app = Flask(__name__, instance_path=instance_path)
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "users.db")}'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
@@ -29,7 +29,10 @@ login_manager.login_view = 'login'
 
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
-
+def is_blacklisted(word, blacklist):
+    return word.lower() in blacklist
+def contains_forbidden_keyword(username, keywords):
+    return any(keyword in username.lower() for keyword in keywords)
 word_list = set(words.words())
 definition_cache = {}
 blacklisted_words = ["badword1", "badword2", "badword3"]
@@ -50,10 +53,6 @@ class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
     date = db.Column(db.Date, nullable=False, unique=True)
-def is_blacklisted(word, blacklist):
-    return word.lower() in blacklist
-def contains_forbidden_keyword(username, keywords):
-    return any(keyword in username.lower() for keyword in keywords)
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
