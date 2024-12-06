@@ -11,16 +11,16 @@ import certifi
 import json
 import random
 import os
-
 ssl._create_default_https_context = ssl._create_unverified_context
 ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
-
+nltk_data_dir = os.path.join('/tmp', 'nltk_data')
 nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
-
-app = Flask(__name__)
+instance_path = os.path.join(os.getcwd(), 'instance')
+os.makedirs(instance_path, exist_ok=True)
+app = Flask(__name__, instance_path=instance_path)
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "users.db")}'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
@@ -64,14 +64,11 @@ def check_and_award_achievements(user):
 
     if contributions_count >= 20 and '20 Contributions' not in achievements:
         new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
-    if contributions_count >= 20 and '20 Contributions' not in achievements:
-        new_achievements.append({'name': '20 Contributions', 'image': url_for('static', filename='images/achievements/twenty_contributions.png')})
     if new_achievements:
         achievements.extend([ach['name'] for ach in new_achievements])
         user.achievements = ','.join(achievements)
         db.session.commit()
         flash(f'New achievements unlocked: {", ".join([ach["name"] for ach in new_achievements])}', 'success')
-    
     return new_achievements
 @login_manager.user_loader
 def load_user(user_id):
