@@ -2,8 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_migrate import Migrate
-from datetime import datetime
-from datetime import date
+from datetime import datetime, date
 import nltk
 from nltk.corpus import words
 import ssl
@@ -11,17 +10,20 @@ import certifi
 import json
 import random
 import os
+from dotenv import load_dotenv
 
-ssl._create_default_https_context = ssl._create_unverified_context
-ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=certifi.where())
-nltk_data_dir = os.path.join('/tmp', 'nltk_data')
+load_dotenv()
+
+ssl._create_default_https_context = ssl.create_default_context(cafile=certifi.where())
 nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
 instance_path = os.path.join(os.getcwd(), 'instance')
 os.makedirs(instance_path, exist_ok=True)
+
 app = Flask(__name__, instance_path=instance_path)
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "users.db")}'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
