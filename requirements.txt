@@ -5,3 +5,5 @@ Flask-Migrate
 nltk
 certifi
 gunicorn
+python-dotenv
+psycopg2-binary
