@@ -26,9 +26,10 @@ if not database_url:
     raise RuntimeError("DATABASE_URL is not set. Please configure it in your environment variables.")
 
 app = Flask(__name__, instance_path=instance_path)
-app.config['SECRET_KEY'] = 'your_secret_key'
-
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
@@ -60,6 +61,15 @@ class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
     date = db.Column(db.Date, nullable=False, unique=True)
+
+class Word(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String(150), unique=True, nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Word {self.word}>"
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
@@ -90,20 +100,8 @@ def load_user(user_id):
 
 import json
 
-def load_database():
-    try:
-        with open('words_database.json', 'r') as file:
-            return json.load(file)
-    except json.JSONDecodeError:
-        return {"words": []}
-    except FileNotFoundError:
-        return {"words": []}
-def save_database(data):
-    with open('words_database.json', 'w') as file:
-        json.dump(data, file, indent=4)
-
 def is_valid_word(word):
-    return word in word_list
+    return Word.query.filter_by(word=word.lower()).first() is not None
 
 def get_word_definition(word):
     if word in definition_cache:
@@ -119,15 +117,15 @@ def get_word_of_the_day():
     if word_of_the_day_entry:
         word = word_of_the_day_entry.word
     else:
-        database = load_database()
-        if not database['words']:
+        word_entry = Word.query.order_by(db.func.random()).first()
+        if not word_entry:
             return None, None, None
-        word = random.choice(database['words'])
+        word = word_entry.word
         new_word_of_the_day = WordOfTheDay(word=word, date=today)
         db.session.add(new_word_of_the_day)
         db.session.commit()
     
-    user = User.query.filter(User.contributions.like(f"%{word}%")).first()
+    user = User.query.filter(User.contributions.contains(word)).first()
     definition = get_word_definition(word)
     return word, user.username if user else "Unknown", definition
 
@@ -201,12 +199,11 @@ def full_contributions(user_id):
 @app.route('/word_game')
 @login_required
 def word_game():
-    database = load_database()
-    words = random.sample(database['words'], 5)  
-    definitions = [get_word_definition(word) for word in words]
-    word_definitions = list(zip(words, definitions))
-    random.shuffle(word_definitions) 
+    words = Word.query.order_by(db.func.random()).limit(5).all()
+    word_definitions = [(word.word, get_word_definition(word.word)) for word in words]
+    random.shuffle(word_definitions)
     return render_template('word_game.html', word_definitions=word_definitions)
+
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
@@ -221,13 +218,13 @@ def add_word():
             return jsonify({'status': 'error', 'message': 'Please sign in to add a word.'})
         
         word = request.form['word'].strip().lower()
-        database = load_database()
         
         if is_blacklisted(word, blacklisted_words):
             return jsonify({'status': 'error', 'message': 'Invalid word.'})
         
-        if word in database['words']:
+        if Word.query.filter_by(word=word).first():
             return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
+        
         if not is_valid_word(word):
             return jsonify({'status': 'error', 'message': 'Invalid word.'})
         
@@ -238,8 +235,8 @@ def add_word():
         if current_user.words_entered_today >= 100:  
             return jsonify({'status': 'error', 'message': 'You have reached the daily limit for entering words.'})
         
-        database['words'].append(word)
-        save_database(database)
+        new_word = Word(word=word)
+        db.session.add(new_word)
         
         if current_user.contributions:
             current_user.contributions += f',{word}'
@@ -251,7 +248,11 @@ def add_word():
         
         new_achievements = check_and_award_achievements(current_user)
         
-        return jsonify({'status': 'success', 'message': 'Word added to the database.', 'new_achievements': new_achievements})
+        return jsonify({
+            'status': 'success', 
+            'message': 'Word added to the database.', 
+            'new_achievements': new_achievements
+        })
     except Exception as e:
         app.logger.error(f"Error in add_word function: {e}")
         return jsonify({'status': 'error', 'message': 'An error occurred while adding the word.'})
