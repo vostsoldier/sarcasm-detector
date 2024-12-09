@@ -1,2 +1,1 @@
-web: gunicorn app:app
-web: flask db upgrade && flask run
+web: sh -c "flask db upgrade && gunicorn app:app --bind 0.0.0.0:$PORT"
