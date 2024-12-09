@@ -20,10 +20,17 @@ nltk.data.path.append(nltk_data_dir)
 instance_path = os.path.join(os.getcwd(), 'instance')
 os.makedirs(instance_path, exist_ok=True)
 
+if os.getenv('FLASK_ENV') != 'production':
+    from dotenv import load_dotenv
+    load_dotenv()
+database_url = os.getenv('DATABASE_URL')
+if not database_url:
+    raise RuntimeError("DATABASE_URL is not set. Please configure it in your environment variables.")
+
 app = Flask(__name__, instance_path=instance_path)
 app.config['SECRET_KEY'] = 'your_secret_key'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
