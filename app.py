@@ -41,7 +41,7 @@ def is_blacklisted(word, blacklist):
     return word.lower() in blacklist
 def contains_forbidden_keyword(username, keywords):
     return any(keyword in username.lower() for keyword in keywords)
-word_list = set(words.words())
+word_list = set(word.lower() for word in words.words())
 definition_cache = {}
 blacklisted_words = ["badword1", "badword2", "badword3"]
 forbidden_keywords = ["admin", "root", "superuser"]
@@ -101,7 +101,7 @@ def load_user(user_id):
 import json
 
 def is_valid_word(word):
-    return Word.query.filter_by(word=word.lower()).first() is not None
+    return word.lower() in word_list
 
 def get_word_definition(word):
     if word in definition_cache:
