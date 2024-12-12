@@ -11,6 +11,7 @@ import json
 import random
 import os
 from dotenv import load_dotenv
+import logging
 
 ssl._create_default_https_context = ssl.create_default_context(cafile=certifi.where())
 nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
@@ -37,10 +38,29 @@ login_manager.login_view = 'login'
 
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
-def is_blacklisted(word, blacklist):
-    return word.lower() in blacklist
-def contains_forbidden_keyword(username, keywords):
-    return any(keyword in username.lower() for keyword in keywords)
+def load_blacklist(filepath):
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return set(line.strip().lower() for line in f if line.strip())
+    except FileNotFoundError:
+        app.logger.error(f"Blacklist file not found: {filepath}")
+        return set()
+    except Exception as e:
+        app.logger.error(f"Error loading blacklist: {e}")
+        return set()
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+BLACKLIST_FILE = os.path.join(BASE_DIR, 'data', 'blacklisted_words.txt')
+blacklisted_words = load_blacklist(BLACKLIST_FILE)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def contains_blacklisted_substring(text, blacklist):
+    text_lower = text.lower()
+    for word in blacklist:
+        if word in text_lower:
+            logger.info(f"Blacklisted word detected in '{text}': '{word}'")
+            return True
+    return False
 word_list = set(word.lower() for word in words.words())
 definition_cache = {}
 blacklisted_words = ["badword1", "badword2", "badword3"]
@@ -219,8 +239,8 @@ def add_word():
         
         word = request.form['word'].strip().lower()
         
-        if is_blacklisted(word, blacklisted_words):
-            return jsonify({'status': 'error', 'message': 'Invalid word.'})
+        if contains_blacklisted_substring(word, blacklisted_words):
+            return jsonify({'status': 'error', 'message': 'The word contains prohibited content.'})
         
         if Word.query.filter_by(word=word).first():
             return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
@@ -262,22 +282,22 @@ def signup():
         username = request.form['username'].strip()
         password = request.form['password'].strip()
         
-        if contains_forbidden_keyword(username, forbidden_keywords):
-            flash('Invalid username.', 'danger')
+        if contains_blacklisted_substring(username, blacklisted_words):
+            flash('Username contains prohibited words or phrases.', 'error')
             return redirect(url_for('signup'))
         
         if User.query.filter_by(username=username).first():
-            flash('Username already exists.', 'danger')
+            flash('Username already exists.', 'error')
             return redirect(url_for('signup'))
         
         new_user = User(username=username, password=password)
         db.session.add(new_user)
         db.session.commit()
-        login_user(new_user)
-        return redirect(url_for('profile'))
+        
+        flash('Account created successfully!', 'success')
+        return redirect(url_for('login'))
     
     return render_template('signup.html')
-
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
@@ -285,14 +305,14 @@ def settings():
         username = request.form['username'].strip()
         password = request.form['password'].strip()
         
-        if username and contains_forbidden_keyword(username, forbidden_keywords):
+        if username and contains_blacklisted_substring(username, blacklisted_words):
             flash('Invalid username.', 'danger')
             return redirect(url_for('settings'))
         
         if username:
             current_user.username = username
         if password:
-            current_user.password = password
+            current_user.password = password 
         
         db.session.commit()
         flash('Your profile has been updated!', 'success')

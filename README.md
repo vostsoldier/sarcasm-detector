@@ -5,7 +5,7 @@ Try to input unique words never seen before!
 ***DEVELOPER TODO***
 Please feel free to send any changes that are listed below! Much appreciated!
 **Finish:**
--Hosting solution - figure out how the fuck to use vercel
+FIX MOBILE SUPPORT
 **Fix:**
 -Fix shop 
 **Create:**
@@ -26,3 +26,5 @@ Please feel free to send any changes that are listed below! Much appreciated!
 -add more achievements tiers 
 -only show update list when new update drops
 **Done but need to check**
+**KEEP IN MIND**
+NEVER EVER CHANGE DATABASE UNLESS I WIPE IT - BREAKS GAME

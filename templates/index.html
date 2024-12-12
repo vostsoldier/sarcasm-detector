@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Word Database</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -9,10 +10,12 @@
     <div class="gradient-background"></div>
     <div class="login-wrapper">
         {% if current_user.is_authenticated %}
-            <a href="{{ url_for('profile') }}" class="nav-link"><button class="nav-button">Profile</button></a>
-            <a href="{{ url_for('shop') }}" class="nav-link"><button class="nav-button">Shop</button></a>
-            <a href="{{ url_for('settings') }}" class="nav-link"><button class="nav-button">Settings</button></a>
-            <a href="{{ url_for('search') }}" class="nav-link"><button class="nav-button">Search Users</button></a>
+            <nav class="nav-buttons">
+                <a href="{{ url_for('profile') }}"><button class="nav-button">Profile</button></a>
+                <a href="{{ url_for('shop') }}"><button class="nav-button">Shop</button></a>
+                <a href="{{ url_for('settings') }}"><button class="nav-button">Settings</button></a>
+                <a href="{{ url_for('search') }}"><button class="nav-button">Search Users</button></a>
+            </nav>
         {% else %}
             <a href="{{ url_for('login') }}" class="nav-link"><button class="nav-button">Login</button></a>
         {% endif %}
@@ -35,7 +38,7 @@
                     <p>No words available.</p>
                 {% endif %}
             </div>
-            <a href="{{ url_for('word_game') }}" class="button_class"><button class="button_class margin">Play Word Game</button></a>
+            <!--<a href="{{ url_for('word_game') }}" class="button_class"><button class="button_class margin">Play Word Game</button></a>-->
         </div>
         <div class="leaderboard">
             <h2>Leaderboard</h2>
@@ -59,8 +62,7 @@
             <p>- Added more QOL changes and more interesting changes.</p>
             <p>- Added a daily word limit-blame the sweats</p>
             <p>- Achievements, settings and word games!</p>
-            <h3>Version 1.1: 11/30/24</p>
-            <p>- Creation of this game!</p>
+            <h3>Version 1.1: 11/30/24</h3>
         </div>
     </div>
     <div id="howToPlayPopup" class="popup">
