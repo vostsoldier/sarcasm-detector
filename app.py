@@ -12,6 +12,9 @@ import random
 import os
 from dotenv import load_dotenv
 import logging
+from sqlalchemy import func
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 ssl._create_default_https_context = ssl.create_default_context(cafile=certifi.where())
 nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
@@ -51,8 +54,6 @@ def load_blacklist(filepath):
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 BLACKLIST_FILE = os.path.join(BASE_DIR, 'data', 'blacklisted_words.txt')
 blacklisted_words = load_blacklist(BLACKLIST_FILE)
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 def contains_blacklisted_substring(text, blacklist):
     text_lower = text.lower()
@@ -63,8 +64,6 @@ def contains_blacklisted_substring(text, blacklist):
     return False
 word_list = set(word.lower() for word in words.words())
 definition_cache = {}
-blacklisted_words = ["badword1", "badword2", "badword3"]
-forbidden_keywords = ["admin", "root", "superuser"]
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -164,10 +163,11 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.password == password:
             login_user(user)
-            return redirect(url_for('profile'))
+            return redirect(url_for('index'))
         else:
-            flash('Login Unsuccessful. Please check username and password', 'danger')
+            flash('Login Unsuccessful. Please check username and password.', 'login_error')
     return render_template('login.html')
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -231,6 +231,10 @@ def search():
         users = User.query.filter(User.username.contains(search_query)).all()
         return render_template('search_results.html', users=users, search_query=search_query)
     return render_template('search.html')
+def is_word_in_contributions(word):
+    users = User.query.filter(User.contributions.like(f"%{word}%")).all()
+    return len(users) > 0
+
 @app.route('/add_word', methods=['POST'])
 def add_word():
     try:
@@ -242,7 +246,7 @@ def add_word():
         if contains_blacklisted_substring(word, blacklisted_words):
             return jsonify({'status': 'error', 'message': 'The word contains prohibited content.'})
         
-        if Word.query.filter_by(word=word).first():
+        if is_word_in_contributions(word):
             return jsonify({'status': 'error', 'message': 'Word already exists in the database.'})
         
         if not is_valid_word(word):
@@ -254,14 +258,11 @@ def add_word():
         
         if current_user.words_entered_today >= 100:  
             return jsonify({'status': 'error', 'message': 'You have reached the daily limit for entering words.'})
-        
-        new_word = Word(word=word)
-        db.session.add(new_word)
-        
         if current_user.contributions:
             current_user.contributions += f',{word}'
         else:
             current_user.contributions = word
+        
         current_user.word_coins += 10
         current_user.words_entered_today += 1
         db.session.commit()
@@ -283,18 +284,18 @@ def signup():
         password = request.form['password'].strip()
         
         if contains_blacklisted_substring(username, blacklisted_words):
-            flash('Username contains prohibited words or phrases.', 'error')
-            return redirect(url_for('signup'))
+            flash('Username contains prohibited words or phrases.', 'signup_error')
+            return render_template('signup.html')
         
         if User.query.filter_by(username=username).first():
-            flash('Username already exists.', 'error')
-            return redirect(url_for('signup'))
+            flash('Username already exists.', 'signup_error')
+            return render_template('signup.html')
         
         new_user = User(username=username, password=password)
         db.session.add(new_user)
         db.session.commit()
         
-        flash('Account created successfully!', 'success')
+        flash('Account created successfully!', 'signup_success')
         return redirect(url_for('login'))
     
     return render_template('signup.html')
@@ -306,8 +307,8 @@ def settings():
         password = request.form['password'].strip()
         
         if username and contains_blacklisted_substring(username, blacklisted_words):
-            flash('Invalid username.', 'danger')
-            return redirect(url_for('settings'))
+            flash('Invalid username.', 'settings_error')
+            return render_template('settings.html')
         
         if username:
             current_user.username = username
@@ -315,8 +316,8 @@ def settings():
             current_user.password = password 
         
         db.session.commit()
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('settings'))
+        flash('Your profile has been updated!', 'settings_success')
+        return redirect(url_for('index'))
     
     return render_template('settings.html')
 if __name__ == '__main__':

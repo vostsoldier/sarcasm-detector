@@ -9,6 +9,17 @@
     <a href="{{ url_for('index') }}"><button class="back-button">Back</button></a>
     <div class="container form-container">
         <h1>Settings</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+                {% if category.startswith('settings_') %}
+                  <li class="{{ category }}">{{ message }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
         <form method="POST">
             <input class="form-in" type="text" name="username" placeholder="New Username" autocomplete="off">
             <input class="form-in" type="password" name="password" placeholder="New Password" autocomplete="off">

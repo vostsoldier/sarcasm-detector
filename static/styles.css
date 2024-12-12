@@ -553,3 +553,30 @@ input[type="text"], input[type="password"] {
     width: 100%;
     max-width: 200px;
 }
+
+.flashes {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.flashes li {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.login_error, .signup_error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.settings_error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.settings_success, .signup_success {
+    background-color: #d4edda;
+    color: #155724;
+}
