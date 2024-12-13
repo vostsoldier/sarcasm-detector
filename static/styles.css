@@ -519,7 +519,7 @@ input[type="text"], input[type="password"] {
         max-height: none;
         box-shadow: none;
         align-items: center;
-        margin: 20px auto 0 auto;
+        margin: 20px 20px 20px -10px;
     }
     body {
         padding: 10px;
@@ -529,6 +529,7 @@ input[type="text"], input[type="password"] {
         padding: 20px;
         align-items: center;
         max-width: 200px;
+        margin: 20px 20px 20px -10px;
     }
     .container, .form-container {
         padding: 20px;
