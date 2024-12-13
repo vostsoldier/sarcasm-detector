@@ -9,7 +9,6 @@ FIX MOBILE SUPPORT
 **Fix:**
 -Fix shop 
 **Create:**
--Filters (limit slurs+language)
 -Feature request
 -PFPs in profiles
 -Roles that can be earned from acheivements+easter eggs

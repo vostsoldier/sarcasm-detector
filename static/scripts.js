@@ -79,6 +79,16 @@ document.addEventListener('DOMContentLoaded', function() {
             popup.style.display = 'none';
         });
     }
+
+    const flashes = document.querySelectorAll('.flashes li');
+    flashes.forEach(flash => {
+        setTimeout(() => {
+            flash.classList.add('fade-out');
+            flash.addEventListener('transitionend', () => {
+                flash.remove();
+            });
+        }, 3000);
+    });
 });
 
 function showNotification(achievements) {

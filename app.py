@@ -317,7 +317,7 @@ def settings():
         
         db.session.commit()
         flash('Your profile has been updated!', 'settings_success')
-        return redirect(url_for('index'))
+        return render_template('settings.html')  
     
     return render_template('settings.html')
 if __name__ == '__main__':
