@@ -76,6 +76,9 @@ class User(UserMixin, db.Model):
     words_entered_today = db.Column(db.Integer, nullable=False, default=0)
     last_word_entry_date = db.Column(db.Date, nullable=True)
 
+    def is_community(self):
+        return self.username == 'Community Acc'
+
 class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
@@ -84,7 +87,6 @@ class WordOfTheDay(db.Model):
 class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), unique=True, nullable=False)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f"<Word {self.word}>"
@@ -220,8 +222,13 @@ def full_contributions(user_id):
 @app.route('/word_game')
 @login_required
 def word_game():
-    words = Word.query.order_by(db.func.random()).limit(5).all()
-    word_definitions = [(word.word, get_word_definition(word.word)) for word in words]
+    all_contributions = User.query.with_entities(User.contributions).all()
+    words = set()
+    for contribution in all_contributions:
+        if contribution.contributions:
+            words.update(contribution.contributions.split(','))
+    selected_words = random.sample(words, min(len(words), 5))
+    word_definitions = [(word, get_word_definition(word)) for word in selected_words]
     random.shuffle(word_definitions)
     return render_template('word_game.html', word_definitions=word_definitions)
 
@@ -232,6 +239,7 @@ def search():
         users = User.query.filter(User.username.contains(search_query)).all()
         return render_template('search_results.html', users=users, search_query=search_query)
     return render_template('search.html')
+
 def is_word_in_contributions(word):
     users = User.query.filter(User.contributions.like(f"%{word}%")).all()
     return len(users) > 0
@@ -239,11 +247,8 @@ def is_word_in_contributions(word):
 @app.route('/add_word', methods=['POST'])
 def add_word():
     try:
-        if not current_user.is_authenticated:
-            return jsonify({'status': 'error', 'message': 'Please sign in to add a word.'})
-        
         word = request.form['word'].strip().lower()
-        
+
         if contains_blacklisted_substring(word, blacklisted_words):
             return jsonify({'status': 'error', 'message': 'The word contains prohibited content.'})
         
@@ -252,32 +257,42 @@ def add_word():
         
         if not is_valid_word(word):
             return jsonify({'status': 'error', 'message': 'Invalid word.'})
-        
-        if current_user.last_word_entry_date != date.today():
-            current_user.words_entered_today = 0
-            current_user.last_word_entry_date = date.today()
-        
-        if current_user.words_entered_today >= 100:  
-            return jsonify({'status': 'error', 'message': 'You have reached the daily limit for entering words.'})
-        if current_user.contributions:
-            current_user.contributions += f',{word}'
+        if current_user.is_authenticated:
+            user = current_user
         else:
-            current_user.contributions = word
-        
-        current_user.word_coins += 10
-        current_user.words_entered_today += 1
+            user = User.query.filter_by(username='Community Acc').first()
+            if not user:
+                return jsonify({'status': 'error', 'message': 'Community account not found.'})
+        if user.last_word_entry_date != date.today():
+            user.words_entered_today = 0
+            user.last_word_entry_date = date.today()
+        if user.words_entered_today >= 100:
+            account_type = 'your' if current_user.is_authenticated else 'Community account'
+            return jsonify({'status': 'error', 'message': f'{account_type.capitalize()} has reached the daily limit for entering words.'})
+        if user.contributions:
+            user.contributions += f',{word}'
+        else:
+            user.contributions = word
+
+        user.word_coins += 10
+        user.words_entered_today += 1
+
+        new_achievements = check_and_award_achievements(user)
         db.session.commit()
-        
-        new_achievements = check_and_award_achievements(current_user)
-        
-        return jsonify({
-            'status': 'success', 
-            'message': 'Word added to the database.', 
-            'new_achievements': new_achievements
-        })
+        response = {
+            'status': 'success',
+            'message': 'Word added to the database.'
+        }
+
+        if new_achievements:
+            response['new_achievements'] = new_achievements
+
+        return jsonify(response)
+
     except Exception as e:
         app.logger.error(f"Error in add_word function: {e}")
         return jsonify({'status': 'error', 'message': 'An error occurred while adding the word.'})
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':

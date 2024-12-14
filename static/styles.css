@@ -119,6 +119,7 @@ input[type="text"], input[type="password"] {
 }
 
 .button_class {
+    display: inline-block;
     padding: 12px 20px;
     background-color: #007bff;
     color: white;
@@ -126,14 +127,15 @@ input[type="text"], input[type="password"] {
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    text-decoration: none; 
+    transition: background-color 0.3s ease, transform 0.2s ease;
     width: 100%;
     max-width: 200px;
 }
 
 .button_class:hover {
     background-color: #0056b3;
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 #message {
