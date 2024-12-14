@@ -299,6 +299,7 @@ def signup():
         return redirect(url_for('login'))
     
     return render_template('signup.html')
+
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():

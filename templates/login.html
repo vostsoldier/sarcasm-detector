@@ -9,7 +9,20 @@
     <a href="{{ url_for('index') }}"><button class="back-button">Back</button></a>
     <div class="container form-container">
         <h1>Login</h1>
-        <form method="POST" >
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+                {% if category.startswith('signup_') or category.startswith('login_') %}
+                  <li class="{{ category }}">{{ message }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        
+        <form method="POST">
             <input class="form-in" type="text" name="username" placeholder="Username" autocomplete="off" required>
             <input class="form-in" type="password" name="password" placeholder="Password" autocomplete="off" required>
             <button class="button_class" type="submit">Login</button>

@@ -84,10 +84,10 @@ document.addEventListener('DOMContentLoaded', function() {
     flashes.forEach(flash => {
         setTimeout(() => {
             flash.classList.add('fade-out');
-            flash.addEventListener('transitionend', () => {
-                flash.remove();
-            });
         }, 3000);
+        flash.addEventListener('transitionend', () => {
+            flash.remove();
+        });
     });
 });
 
