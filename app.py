@@ -168,10 +168,11 @@ def login():
             flash('Login Unsuccessful. Please check username and password.', 'login_error')
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
+    flash('You have been logged out.', 'logout_success')
     return redirect(url_for('index'))
 
 @app.route('/profile')

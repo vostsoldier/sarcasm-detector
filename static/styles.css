@@ -126,13 +126,14 @@ input[type="text"], input[type="password"] {
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.2s ease;
     width: 100%;
     max-width: 200px;
 }
 
 .button_class:hover {
     background-color: #0056b3;
+    transform: scale(1.1);
 }
 
 #message {
@@ -186,11 +187,12 @@ input[type="text"], input[type="password"] {
     border-radius: 5px;
     font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 .nav-button:hover {
     background-color: #0056b3;
+    transform: scale(1.1);
 }
 
 .form-container {
@@ -246,7 +248,7 @@ input[type="text"], input[type="password"] {
     flex: 1;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align items to the top */
+    align-items: flex-start; 
     padding: 20px;
     gap: 20px;
     flex-wrap: wrap;
@@ -568,7 +570,7 @@ input[type="text"], input[type="password"] {
     border-radius: 5px;
     margin-bottom: 10px;
     opacity: 0;
-    animation: slideDown 0.5s forwards;
+    animation: slideDown 0.5s forwards, slideIn 0.5s ease;
     transition: all 0.3s ease;
 }
 
@@ -708,4 +710,13 @@ input[type="text"], input[type="password"] {
 .fade-out {
     opacity: 0;
     transition: opacity 0.5s ease-out;
+}
+
+.signup-button {
+    animation-fill-mode: none;
+    transition: transform 0.2s ease;
+}
+
+.signup-button:hover {
+    transform: scale(1.1);
 }

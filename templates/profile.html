@@ -26,7 +26,9 @@
                 <li>{{ achievement }}</li>
             {% endfor %}
         </ul>
-        <a class="button_class" href="{{ url_for('logout') }}"><button class="button_class">Logout</button></a>
+        <form action="{{ url_for('logout') }}" method="POST" style="display:inline;">
+            <button class="button_class" type="submit">Logout</button>
+        </form>
     </div>
 </body>
 </html>

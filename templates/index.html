@@ -18,6 +18,7 @@
             </nav>
         {% else %}
             <a href="{{ url_for('login') }}" class="nav-link"><button class="nav-button">Login</button></a>
+            <a href="{{ url_for('signup') }}" class="nav-link"><button class="nav-button signup-button">Sign Up</button></a>
         {% endif %}
     </div>
     <div class="main-content">
@@ -38,7 +39,6 @@
                     <p>No words available.</p>
                 {% endif %}
             </div>
-            <!--<a href="{{ url_for('word_game') }}" class="button_class"><button class="button_class margin">Play Word Game</button></a>-->
         </div>
         <div class="leaderboard">
             <h2>Leaderboard</h2>
