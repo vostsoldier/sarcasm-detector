@@ -7,3 +7,5 @@ certifi
 gunicorn
 python-dotenv
 psycopg2-binary
+PyDictionary
+APScheduler

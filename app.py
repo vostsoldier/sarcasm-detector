@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_migrate import Migrate
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import nltk
 from nltk.corpus import words
 import ssl
@@ -13,6 +13,9 @@ import os
 from dotenv import load_dotenv
 import logging
 from sqlalchemy import func
+from PyDictionary import PyDictionary
+from apscheduler.schedulers.background import BackgroundScheduler
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -23,7 +26,6 @@ instance_path = os.path.join(os.getcwd(), 'instance')
 os.makedirs(instance_path, exist_ok=True)
 
 if os.getenv('FLASK_ENV') != 'production':
-    from dotenv import load_dotenv
     load_dotenv()
 database_url = os.getenv('DATABASE_URL')
 if not database_url:
@@ -87,6 +89,7 @@ class WordOfTheDay(db.Model):
 class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), unique=True, nullable=False)
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f"<Word {self.word}>"
@@ -123,13 +126,13 @@ import json
 
 def is_valid_word(word):
     return word.lower() in word_list
+dictionary = PyDictionary()
 
 def get_word_definition(word):
-    if word in definition_cache:
-        return definition_cache[word]
-    placeholder_definition = "This is a placeholder definition."
-    definition_cache[word] = placeholder_definition
-    return placeholder_definition
+    definition = dictionary.meaning(word)
+    if not definition:
+        return "Definition not found."
+    return '; '.join([' | '.join(defs) for defs in definition.values()])
 
 def get_word_of_the_day():
     today = date.today()
@@ -138,13 +141,22 @@ def get_word_of_the_day():
     if word_of_the_day_entry:
         word = word_of_the_day_entry.word
     else:
-        word_entry = Word.query.order_by(db.func.random()).first()
-        if not word_entry:
+        word_count = Word.query.count()
+        if word_count == 0:
+            logger.error("Word table is empty. Cannot select Word of the Day.")
             return None, None, None
-        word = word_entry.word
-        new_word_of_the_day = WordOfTheDay(word=word, date=today)
+        
+        random_offset = random.randint(0, word_count - 1)
+        word_entry = Word.query.offset(random_offset).first()
+        if not word_entry:
+            logger.error("Failed to select a random word.")
+            return None, None, None
+        
+        new_word_of_the_day = WordOfTheDay(word=word_entry.word, date=today)
         db.session.add(new_word_of_the_day)
         db.session.commit()
+        logger.info(f"Selected '{word_entry.word}' as Word of the Day for {today}.")
+        word = word_entry.word
     
     user = User.query.filter(User.contributions.contains(word)).first()
     definition = get_word_definition(word)
@@ -153,9 +165,19 @@ def get_word_of_the_day():
 @app.route('/')
 def index():
     users = User.query.all()
-    leaderboard_data = sorted(users, key=lambda user: len(user.contributions.split(',')) if user.contributions else 0, reverse=True)
+    leaderboard_data = sorted(
+        users,
+        key=lambda user: len(user.contributions.split(',')) if user.contributions else 0,
+        reverse=True
+    )
     word_of_the_day, discovered_by, definition = get_word_of_the_day()
-    return render_template('index.html', leaderboard=leaderboard_data, word_of_the_day=word_of_the_day, discovered_by=discovered_by, definition=definition)
+    return render_template(
+        'index.html',
+        leaderboard=leaderboard_data,
+        word_of_the_day=word_of_the_day,
+        discovered_by=discovered_by,
+        definition=definition
+    )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -337,6 +359,18 @@ def settings():
         return render_template('settings.html')  
     
     return render_template('settings.html')
+
+def scheduled_word_selection():
+    with app.app_context():
+        get_word_of_the_day()
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=scheduled_word_selection, trigger="cron", hour=0, minute=0)
+scheduler.start()
+
+import atexit
+atexit.register(lambda: scheduler.shutdown())
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
