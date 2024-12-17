@@ -79,6 +79,16 @@
             <button id="closePopup">Close</button>
         </div>
     </div>
+    <div class="feature-request-box" id="featureRequestBox">
+        <div class="feature-request-header">
+            <h2>Submit a Feature Request</h2>
+            <button class="close-button" id="closeFeatureRequest">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('feature_request') }}">
+            <textarea name="description" placeholder="Describe your feature request..." required></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>

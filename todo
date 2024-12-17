@@ -7,7 +7,6 @@ Please feel free to send any changes that are listed below! Much appreciated!
 
 **Fix:**
 !-Fix shop 
-!!-Change x position and hide scroll bar when not used
 **Create:**
 !!!-Feature request
 !-PFPs in profiles
@@ -16,6 +15,8 @@ Please feel free to send any changes that are listed below! Much appreciated!
 !!-Dark mode in settings
 !!-Loading indicators
 **Update**
+!!!-Add ajax for async so people dont need to refresh to see updated contributions
+!!!-Fix feature not being shaded at start
 !!!-When a user enters a new word, delete word from input 
 **Add later on**
 !!-Public vs private profiles

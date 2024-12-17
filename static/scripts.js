@@ -89,6 +89,33 @@ document.addEventListener('DOMContentLoaded', function() {
             flash.remove();
         });
     });
+
+    const closeFeatureRequest = document.getElementById('closeFeatureRequest');
+    const featureRequestBox = document.getElementById('featureRequestBox');
+
+    if (closeFeatureRequest && featureRequestBox) {
+        closeFeatureRequest.addEventListener('click', function() {
+            featureRequestBox.style.display = 'none';
+        });
+    }
+    const featureRequestForm = document.querySelector('.feature-request-box form');
+    if (featureRequestForm) {
+        featureRequestForm.addEventListener('submit', function(event) {
+            const featureRequestBox = document.getElementById('featureRequestBox');
+            featureRequestBox.classList.add('animate-shake');
+            featureRequestBox.addEventListener('animationend', function handleShakeEnd() {
+                featureRequestBox.classList.remove('animate-shake');
+                featureRequestBox.classList.add('animate-pop-out');
+                featureRequestBox.addEventListener('animationend', function handlePopOutEnd() {
+                    featureRequestBox.classList.remove('animate-pop-out');
+                    featureRequestBox.style.display = 'none';
+                    featureRequestBox.removeEventListener('animationend', handlePopOutEnd);
+                });
+
+                featureRequestBox.removeEventListener('animationend', handleShakeEnd);
+            });
+        });
+    }
 });
 
 function showNotification(achievements) {
@@ -98,14 +125,6 @@ function showNotification(achievements) {
     setTimeout(() => {
         notification.style.display = 'none';
     }, 5000);
-}
-
-function confetti() {
-    confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-    });
 }
 
 function getWordByDefinition(definition) {

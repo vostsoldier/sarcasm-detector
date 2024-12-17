@@ -94,6 +94,14 @@ class Word(db.Model):
     def __repr__(self):
         return f"<Word {self.word}>"
 
+class FeatureRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('feature_requests', lazy=True))
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
@@ -359,6 +367,25 @@ def settings():
         return render_template('settings.html')  
     
     return render_template('settings.html')
+
+@app.route('/feature_request', methods=['GET', 'POST'])
+@login_required
+def feature_request():
+    if request.method == 'POST':
+        description = request.form['description'].strip()
+        
+        if not description:
+            flash('Description is required.', 'danger')
+            return redirect(url_for('index'))
+        
+        new_request = FeatureRequest(user_id=current_user.id, description=description)
+        db.session.add(new_request)
+        db.session.commit()
+        
+        flash('Your feature request has been submitted!', 'success')
+        return redirect(url_for('index'))
+    
+    return render_template('feature_request.html')
 
 def scheduled_word_selection():
     with app.app_context():
