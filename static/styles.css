@@ -369,24 +369,25 @@ input[type="text"], input[type="password"] {
     position: fixed;
     bottom: 20px;
     right: 20px;
+    width: 300px; 
+    max-height: 400px;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 300px;
-    z-index: 1000;
-    border: 1px solid #ddd;
+    overflow-y: auto; 
+    overflow-x: hidden; 
+    z-index: 1000; 
 }
-
 .updates-content {
     position: relative;
     text-align: left;
 }
-/*CHANGE THIS TO CHANGE THE CLOSE BUTTON POSITION*/
+
 .close-button {
     position: absolute;
-    top: 0px;
-    right: -10px;
+    top: 10px;
+    right: 10px;
     background-color: transparent;
     color: #dc3545;
     border: none;
@@ -399,16 +400,22 @@ input[type="text"], input[type="password"] {
     color: #857f7f;
 }
 
-.updates-content h2 {
-    margin-top: 0;
-    font-size: 20px;
-    color: #343a40;
+.updates-tab::-webkit-scrollbar {
+    width: 8px;
 }
 
-.updates-content p {
-    font-size: 14px;
-    color: #343a40;
-    line-height: 1.5;
+.updates-tab::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.updates-tab::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.updates-tab::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 .word-game-pair {
     margin-bottom: 20px;
