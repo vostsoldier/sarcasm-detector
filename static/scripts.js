@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         messageElement.classList.remove('bounce');
                     }, 500);
+                    document.getElementById('word').value = '';
                 }
 
                 if (data.new_achievements && data.new_achievements.length > 0) {
@@ -100,19 +101,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const featureRequestForm = document.querySelector('.feature-request-box form');
     if (featureRequestForm) {
+        const featureRequestURL = featureRequestForm.getAttribute('action'); // Get URL from data attribute
+        
         featureRequestForm.addEventListener('submit', function(event) {
+            event.preventDefault();
             const featureRequestBox = document.getElementById('featureRequestBox');
-            featureRequestBox.classList.add('animate-shake');
-            featureRequestBox.addEventListener('animationend', function handleShakeEnd() {
-                featureRequestBox.classList.remove('animate-shake');
-                featureRequestBox.classList.add('animate-pop-out');
-                featureRequestBox.addEventListener('animationend', function handlePopOutEnd() {
-                    featureRequestBox.classList.remove('animate-pop-out');
-                    featureRequestBox.style.display = 'none';
-                    featureRequestBox.removeEventListener('animationend', handlePopOutEnd);
-                });
+            const description = featureRequestBox.querySelector('textarea').value;
 
-                featureRequestBox.removeEventListener('animationend', handleShakeEnd);
+            fetch(featureRequestURL, {  
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ description: description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const thankYouMessage = document.getElementById('thankYouFeatureRequest');
+                    thankYouMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        thankYouMessage.style.display = 'none';
+                    }, 3000); 
+                    document.getElementById('featureRequestBox').querySelector('textarea').value = '';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting feature request:', error);
             });
         });
     }

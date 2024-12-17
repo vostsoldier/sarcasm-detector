@@ -375,15 +375,13 @@ def feature_request():
         description = request.form['description'].strip()
         
         if not description:
-            flash('Description is required.', 'danger')
-            return redirect(url_for('index'))
+            return jsonify({'status': 'error', 'message': 'Description is required.'})
         
         new_request = FeatureRequest(user_id=current_user.id, description=description)
         db.session.add(new_request)
         db.session.commit()
         
-        flash('Your feature request has been submitted!', 'success')
-        return redirect(url_for('index'))
+        return jsonify({'status': 'success', 'message': 'Your feature request has been submitted!'})
     
     return render_template('feature_request.html')
 

@@ -8,16 +8,14 @@ Please feel free to send any changes that are listed below! Much appreciated!
 **Fix:**
 !-Fix shop 
 **Create:**
-!!!-Feature request
 !-PFPs in profiles
 !!-Roles that can be earned from acheivements+easter eggs
 !-Events (random+set from entering words (easter eggs))
 !!-Dark mode in settings
 !!-Loading indicators
 **Update**
+!!!-Animation for feature requesting
 !!!-Add ajax for async so people dont need to refresh to see updated contributions
-!!!-Fix feature not being shaded at start
-!!!-When a user enters a new word, delete word from input 
 **Add later on**
 !!-Public vs private profiles
 !-Friend feature
@@ -38,5 +36,6 @@ Please feel free to send any changes that are listed below! Much appreciated!
 -Forum????
 -In-depth Tutorial
 **Done but need to check**
+!!!-When a user enters a new word, delete word from input 
 **KEEP IN MIND** 
 NEVER EVER CHANGE DATABASE UNLESS I WIPE IT - BREAKS GAME
