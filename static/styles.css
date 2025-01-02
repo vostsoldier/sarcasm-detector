@@ -723,6 +723,8 @@ input[type="text"], input[type="password"] {
 .signup-button {
     animation-fill-mode: none;
     transition: transform 0.2s ease;
+    margin-left: 10px;
+    max-width: 89.81px;
 }
 
 .signup-button:hover {
