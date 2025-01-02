@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('doNotShowHowToPlay', 'true');
             }
             popup.style.display = 'none';
+            startTutorial();
         });
     }
 
@@ -153,4 +154,8 @@ function getWordByDefinition(definition) {
         }
     }
     return null;
+}
+
+function startTutorial() {
+    introJs().start();
 }

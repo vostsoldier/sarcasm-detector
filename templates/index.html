@@ -4,6 +4,8 @@
     <title>Word Database</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.0.0/introjs.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.0.0/intro.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
@@ -18,15 +20,15 @@
             </nav>
         {% else %}
             <a href="{{ url_for('login') }}" class="nav-link"><button class="nav-button">Login</button></a>
-            <a href="{{ url_for('signup') }}" class="nav-link"><button class="nav-button signup-button">Sign Up</button></a>
+            <a href="{{ url_for('signup') }}" class="nav-link"><button class="nav-button signup-button" data-step="4" data-intro="Here, you can create a account, to track your contributions, and put them on the leaderboard!">Sign Up</button></a>
         {% endif %}
     </div>
     <div class="main-content">
-        <div class="container">
+        <div class="container" data-step="1" data-intro="Lets get started! Here, you can input unique words to our ever growing list.">
             <h1>Word Vault</h1>
             <form id="wordForm">
-                <input type="text" id="word" name="word" placeholder="Enter a word" autocomplete="off">
-                <button class="button_class" type="submit">Add Word</button>
+                <input type="text" id="word" name="word" placeholder="Enter a word" autocomplete="off" data-step="2" data-intro="Lets start! Try putting in a new word!">
+                <button class="button_class" type="submit" data-step="3" data-intro="Click Add Word, and congrats, you've have successfully added a new word!">Add Word</button>
             </form>
             <p id="message"></p>
             <div class="word-of-the-day">
@@ -82,7 +84,7 @@
     <div id="thankYouFeatureRequest" class="thank-you-message">
         <h1>Thank You for Your Feature Request!</h1>
     </div>
-    <div class="feature-request-box" id="featureRequestBox">
+    <div class="feature-request-box" id="featureRequestBox" data-step="5" data-intro="Before you go, have any ideas for new features? Let us know!">
         <div class="feature-request-header">
             <h2>Submit a Feature Request</h2>
             <button class="close-button" id="closeFeatureRequest">&times;</button>
