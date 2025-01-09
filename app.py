@@ -77,6 +77,23 @@ class User(UserMixin, db.Model):
     achievements = db.Column(db.Text, nullable=True, default="")
     words_entered_today = db.Column(db.Integer, nullable=False, default=0)
     last_word_entry_date = db.Column(db.Date, nullable=True)
+    is_private = db.Column(db.Boolean, default=False)
+    
+    friends = relationship(
+        'User',
+        secondary=friends,
+        primaryjoin=id==friends.c.user_id,
+        secondaryjoin=id==friends.c.friend_id,
+        backref='friends_of'
+    )
+    
+    def add_friend(self, user):
+        if user not in self.friends:
+            self.friends.append(user)
+    
+    def remove_friend(self, user):
+        if user in self.friends:
+            self.friends.remove(user)
 
     def is_community(self):
         return self.username == 'Community Acc'
@@ -239,6 +256,11 @@ def redeem():
 @app.route('/user/<int:user_id>')
 def user_profile(user_id):
     user = User.query.get_or_404(user_id)
+    if user.is_private:
+        if not current_user.is_authenticated or user not in current_user.friends:
+            flash('This profile is private.', 'error')
+            return redirect(url_for('index'))
+    
     contributions = user.contributions.split(',') if user.contributions else []
     return render_template('user_profile.html', user=user, contributions=contributions)
 
@@ -352,19 +374,21 @@ def settings():
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password'].strip()
+        is_private = 'is_private' in request.form
         
         if username and contains_blacklisted_substring(username, blacklisted_words):
             flash('Invalid username.', 'settings_error')
-            return render_template('settings.html')
+            return redirect(url_for('settings'))
         
         if username:
             current_user.username = username
         if password:
             current_user.password = password 
+        current_user.is_private = is_private
         
         db.session.commit()
         flash('Your profile has been updated!', 'settings_success')
-        return render_template('settings.html')  
+        return redirect(url_for('settings'))  
     
     return render_template('settings.html')
 

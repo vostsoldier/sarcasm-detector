@@ -13,10 +13,10 @@
     <div class="login-wrapper">
         {% if current_user.is_authenticated %}
             <nav class="nav-buttons">
-                <a href="{{ url_for('profile') }}"><button class="nav-button">Profile</button></a>
-                <a href="{{ url_for('shop') }}"><button class="nav-button">Shop</button></a>
-                <a href="{{ url_for('settings') }}"><button class="nav-button">Settings</button></a>
-                <a href="{{ url_for('search') }}"><button class="nav-button">Search Users</button></a>
+                <a data_step="5" data-intro="Check out your stats here!" href="{{ url_for('profile') }}"><button class="nav-button">Profile</button></a>
+                <a data_step="6" data-intro="Customize your experience using the word coins from contributions!" href="{{ url_for('shop') }}"><button class="nav-button">Shop</button></a>
+                <a data_step="7" data-intro="Change your username or password here. Feel free to enable a private profile!" href="{{ url_for('settings') }}"><button class="nav-button">Settings</button></a>
+                <a data_step="8" data-intro="Make new friends, and find your old friends!" href="{{ url_for('search') }}"><button class="nav-button">Search Users</button></a>
             </nav>
         {% else %}
             <a href="{{ url_for('login') }}" class="nav-link"><button class="nav-button">Login</button></a>
@@ -60,8 +60,6 @@
             <button id="closeUpdates" class="close-button">x</button>
             <h2>Updates</h2>
             <p>Welcome to the latest updates! Here you can find the newest features and improvements.</p>
-            <h3>Version 1.4: 1/8/24</h3>
-            <p>A tutorial, friends feature and more QOL</p>
             <h3>Version 1.3: 12/13/24</h3>
             <p>- More QOL changes</p>
             <p>- Added a filter...</p>
@@ -86,7 +84,7 @@
     <div id="thankYouFeatureRequest" class="thank-you-message">
         <h1>Thank You for Your Feature Request!</h1>
     </div>
-    <div class="feature-request-box" id="featureRequestBox" data-step="5" data-intro="Before you go, have any ideas for new features? Let us know!">
+    <div class="feature-request-box" id="featureRequestBox" data-step="9" data-intro="Before you go, have any ideas for new features? Let us know!">
         <div class="feature-request-header">
             <h2>Submit a Feature Request</h2>
             <button class="close-button" id="closeFeatureRequest">&times;</button>

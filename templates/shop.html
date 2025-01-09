@@ -10,13 +10,15 @@
     <div class="container">
         <h1>Shop</h1>
         <p>You have {{ word_coins }} Word Coins</p>
-        <ul>
+        <ul class="shop-list">
             {% for item in items %}
-                <li>
+                <li class="shop-item">
+                    <div class="item-name">{{ item.name }}</div>
+                    <div class="item-cost">{{ item.cost }} Word Coins</div>
                     <form method="POST" action="{{ url_for('redeem') }}">
                         <input type="hidden" name="item_type" value="{{ item.type }}">
                         <input type="hidden" name="item_cost" value="{{ item.cost }}">
-                        <button type="submit">{{ item.name }} - {{ item.cost }} Word Coins</button>
+                        <button type="submit">Redeem</button>
                     </form>
                 </li>
             {% endfor %}

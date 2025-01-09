@@ -23,6 +23,13 @@
         <form method="POST">
             <input class="form-in" type="text" name="username" placeholder="New Username" autocomplete="off">
             <input class="form-in" type="password" name="password" placeholder="New Password" autocomplete="off">
+            <div class="checkbox-wrapper">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="is_private" {% if current_user.is_private %}checked{% endif %}>
+                    <span class="checkmark"></span>
+                    Make my profile private
+                </label>
+            </div>
             <button class="button_class" type="submit">Update Profile</button>
         </form>
     </div>

@@ -9,34 +9,54 @@
     <a href="{{ url_for('index') }}"><button class="back-button">Back</button></a>
     <div class="container">
         <h1>{{ user.username }}'s Profile</h1>
-        <p>Joined on: {{ user.date_joined.strftime('%B %d, %Y') }}</p>
-        <h3>Contributions:</h3>
-        <ul>
-            {% for word in contributions[:5] %}
-                <li>{{ word }}</li>
-            {% endfor %}
-        </ul>
-        {% if contributions|length > 5 %}
-            <a href="{{ url_for('full_contributions', user_id=user.id) }}" class="button_class">See Full List</a>
+        {% if user.is_private %}
+            <p><em>This profile is private.</em></p>
+        {% else %}
+            <p>Joined on: {{ user.date_joined.strftime('%B %d, %Y') }}</p>
+            <h3>Contributions:</h3>
+            <ul>
+                {% for word in contributions[:5] %}
+                    <li>{{ word }}</li>
+                {% endfor %}
+            </ul>
+            {% if contributions|length > 5 %}
+                <a href="{{ url_for('full_contributions', user_id=user.id) }}" class="button_class">See Full List</a>
+            {% endif %}
+            <h3>Achievements:</h3>
+            <ul>
+                {% for achievement in (user.achievements or "").split(',') %}
+                    <li>{{ achievement }}</li>
+                {% endfor %}
+            </ul>
         {% endif %}
-        <h3>Achievements:</h3>
+
+        <h3>Friends:</h3>
         <ul>
-            {% for achievement in (user.achievements or "").split(',') %}
-                <li>{{ achievement }}</li>
+            {% for friend in user.friends %}
+                <li>
+                    <a href="{{ url_for('user_profile', user_id=friend.id) }}">{{ friend.username }}</a>
+                </li>
+            {% else %}
+                <li>No friends added.</li>
             {% endfor %}
         </ul>
 
-        <h3>Your Friends:</h3>
-        <div class="friend-list">
-            <ul>
-                {% for friend in user.friends %}
-                    <li>
-                        <a href="{{ url_for('user_profile', user_id=friend.id) }}">{{ friend.username }}</a>
-                    </li>
-                {% else %}
-                    <li>No friends added.</li>
-                {% endfor %}
-            </ul>
+        <button id="friendListButton" class="button_class">Friend List</button>
+
+        <div id="friendListPopup" class="popup">
+            <div class="popup-content">
+                <button class="close-button" id="closeFriendList">&times;</button>
+                <h2>Your Friends</h2>
+                <ul>
+                    {% for friend in user.friends %}
+                        <li>
+                            <a href="{{ url_for('user_profile', user_id=friend.id) }}">{{ friend.username }}</a>
+                        </li>
+                    {% else %}
+                        <li>No friends added.</li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
 
         {% if current_user.is_authenticated and current_user.id != user.id %}
