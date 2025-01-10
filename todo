@@ -39,3 +39,20 @@ Please feel free to send any changes that are listed below! Much appreciated!
 !!!-When a user enters a new word, delete word from input 
 **KEEP IN MIND** 
 NEVER EVER CHANGE DATABASE UNLESS I WIPE IT - BREAKS GAME
+
+
+Friend System: Allow users to add friends and compare contributions.
+Sharing Achievements: Enable users to share their achievements on social media.
+User Customization:
+
+Profile Themes: Let users customize the appearance of their profiles.
+Badge Collections: Expand the achievements system with more badges and tiers.
+Interactive Leaderboards:
+
+Category-Based Leaderboards: Create leaderboards for different categories like most unique words, most active users, etc.
+
+Real-Time Updates: Implement real-time leaderboard updates using WebSockets.
+
+
+Public vs. Private Profiles: Allow users to choose between public and private profiles.
+Daily Quests and Streaks: Introduce daily tasks and streak rewards to encourage regular participation.

@@ -12,7 +12,8 @@ import random
 import os
 from dotenv import load_dotenv
 import logging
-from sqlalchemy import func
+from sqlalchemy import func, Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 from PyDictionary import PyDictionary
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -66,6 +67,11 @@ def contains_blacklisted_substring(text, blacklist):
     return False
 word_list = set(word.lower() for word in words.words())
 definition_cache = {}
+friends = Table('friends',
+    db.Model.metadata,
+    Column('user_id', Integer, ForeignKey('user.id'), primary_key=True),
+    Column('friend_id', Integer, ForeignKey('user.id'), primary_key=True)
+)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -77,7 +83,6 @@ class User(UserMixin, db.Model):
     achievements = db.Column(db.Text, nullable=True, default="")
     words_entered_today = db.Column(db.Integer, nullable=False, default=0)
     last_word_entry_date = db.Column(db.Date, nullable=True)
-    is_private = db.Column(db.Boolean, default=False)
     
     friends = relationship(
         'User',
@@ -408,6 +413,45 @@ def feature_request():
         return jsonify({'status': 'success', 'message': 'Your feature request has been submitted!'})
     
     return render_template('feature_request.html')
+
+@app.route('/add_friend/<int:friend_id>', methods=['POST'])
+@login_required
+def add_friend(friend_id):
+    friend = User.query.get_or_404(friend_id)
+    if friend == current_user:
+        flash('You cannot add yourself as a friend.', 'error')
+        return redirect(url_for('user_profile', user_id=friend_id))
+    
+    current_user.add_friend(friend)
+    db.session.commit()
+    flash(f'You are now friends with {friend.username}.', 'success')
+    return redirect(url_for('user_profile', user_id=friend_id))
+
+@app.route('/remove_friend/<int:friend_id>', methods=['POST'])
+@login_required
+def remove_friend(friend_id):
+    friend = User.query.get_or_404(friend_id)
+    current_user.remove_friend(friend)
+    db.session.commit()
+    flash(f'You have removed {friend.username} from your friends.', 'success')
+    return redirect(url_for('user_profile', user_id=friend_id))
+
+@app.route('/friends')
+@login_required
+def friends_list():
+    friends = current_user.friends
+    return render_template('friends.html', friends=friends)
+
+@app.route('/compare_contributions/<int:friend_id>')
+@login_required
+def compare_contributions(friend_id):
+    friend = User.query.get_or_404(friend_id)
+    user_contributions = set(current_user.contributions.split(',')) if current_user.contributions else set()
+    friend_contributions = set(friend.contributions.split(',')) if friend.contributions else set()
+    common = user_contributions.intersection(friend_contributions)
+    unique_to_user = user_contributions - friend_contributions
+    unique_to_friend = friend_contributions - user_contributions
+    return render_template('compare_contributions.html', friend=friend, common=common, unique_to_user=unique_to_user, unique_to_friend=unique_to_friend)
 
 def scheduled_word_selection():
     with app.app_context():

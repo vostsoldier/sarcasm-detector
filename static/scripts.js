@@ -135,6 +135,25 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    const friendListButton = document.getElementById('friendListButton');
+    const friendListPopup = document.getElementById('friendListPopup');
+    const closeFriendList = document.getElementById('closeFriendList');
+
+    if (friendListButton && friendListPopup && closeFriendList) {
+        friendListButton.addEventListener('click', () => {
+            friendListPopup.style.display = 'flex';
+        });
+
+        closeFriendList.addEventListener('click', () => {
+            friendListPopup.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === friendListPopup) {
+                friendListPopup.style.display = 'none';
+            }
+        });
+    }
 });
 
 function showNotification(achievements) {

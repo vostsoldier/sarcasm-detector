@@ -41,6 +41,17 @@
             {% endfor %}
         </ul>
 
+        <h3>Friends:</h3>
+        <ul>
+            {% for friend in user.friends %}
+                <li>
+                    <a href="{{ url_for('user_profile', user_id=friend.id) }}">{{ friend.username }}</a>
+                </li>
+            {% else %}
+                <li>No friends added.</li>
+            {% endfor %}
+        </ul>
+
         <button id="friendListButton" class="button_class">Friend List</button>
 
         <div id="friendListPopup" class="popup">
