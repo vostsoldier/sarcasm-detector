@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -16,6 +19,7 @@ from sqlalchemy import func, Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from PyDictionary import PyDictionary
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask_socketio import SocketIO, emit
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -41,6 +45,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+socketio = SocketIO(app, async_mode='eventlet')
 
 # API KEY
 MW_API_KEY = 'bff29416-af74-4873-bf21-fb2971ee7a56'
@@ -463,8 +469,29 @@ scheduler.start()
 
 import atexit
 atexit.register(lambda: scheduler.shutdown())
+def get_leaderboard():
+    users = User.query.all()
+    leaderboard_data = sorted(
+        users,
+        key=lambda user: len(user.contributions.split(',')) if user.contributions else 0,
+        reverse=True
+    )
+    return [
+        {'id': user.id, 'username': user.username, 'contributions': len(user.contributions.split(',')) if user.contributions else 0}
+        for user in leaderboard_data[:10]
+    ]
+
+@socketio.on('connect')
+def handle_connect():
+    emit('leaderboard_update', get_leaderboard())
+
+def emit_leaderboard():
+    leaderboard = get_leaderboard()
+    socketio.emit('leaderboard_update', leaderboard)
+
+scheduler.add_job(func=emit_leaderboard, trigger='interval', minutes=1)
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    socketio.run(app, debug=True)

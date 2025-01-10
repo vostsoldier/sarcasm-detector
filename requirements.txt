@@ -9,3 +9,5 @@ python-dotenv
 psycopg2-binary
 PyDictionary
 APScheduler
+Flask-SocketIO
+eventlet

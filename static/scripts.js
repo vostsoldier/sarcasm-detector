@@ -154,6 +154,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    const socket = io();
+    socket.on('leaderboard_update', function(data) {
+        const leaderboardList = document.querySelector('.leaderboard ul');
+        leaderboardList.innerHTML = '';
+        data.forEach(user => {
+            const li = document.createElement('li');
+
+            const a = document.createElement('a');
+            a.href = `/user/${user.id}`;
+            a.textContent = user.username;
+
+            const span = document.createElement('span');
+            span.textContent = `${user.contributions} contributions`;
+
+            li.appendChild(a);
+            li.appendChild(span);
+            leaderboardList.appendChild(li);
+        });
+    });
 });
 
 function showNotification(achievements) {
