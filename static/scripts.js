@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const featureRequestForm = document.querySelector('.feature-request-box form');
     if (featureRequestForm) {
-        const featureRequestURL = featureRequestForm.getAttribute('action'); // Get URL from data attribute
+        const featureRequestURL = featureRequestForm.getAttribute('action'); 
         
         featureRequestForm.addEventListener('submit', function(event) {
             event.preventDefault();
