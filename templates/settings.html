@@ -13,7 +13,7 @@
           {% if messages %}
             <ul class="flashes">
               {% for category, message in messages %}
-                {% if category.startswith('settings_') %}
+                {% if category.startswith('settings_') or category == 'info' %}
                   <li class="{{ category }}">{{ message }}</li>
                 {% endif %}
               {% endfor %}

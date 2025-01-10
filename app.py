@@ -89,7 +89,8 @@ class User(UserMixin, db.Model):
     achievements = db.Column(db.Text, nullable=True, default="")
     words_entered_today = db.Column(db.Integer, nullable=False, default=0)
     last_word_entry_date = db.Column(db.Date, nullable=True)
-    
+    is_private = db.Column(db.Boolean, default=False)
+
     friends = relationship(
         'User',
         secondary=friends,
@@ -387,18 +388,32 @@ def settings():
         password = request.form['password'].strip()
         is_private = 'is_private' in request.form
         
-        if username and contains_blacklisted_substring(username, blacklisted_words):
-            flash('Invalid username.', 'settings_error')
-            return redirect(url_for('settings'))
-        
-        if username:
+        changes_made = False
+        flashed_messages = []
+
+        if username and username != current_user.username:
             current_user.username = username
-        if password:
-            current_user.password = password 
-        current_user.is_private = is_private
-        
-        db.session.commit()
-        flash('Your profile has been updated!', 'settings_success')
+            changes_made = True
+            flashed_messages.append('You have successfully changed your username.')
+
+        if password and password != current_user.password:
+            current_user.password = password
+            changes_made = True
+            flashed_messages.append('You have successfully changed your password.')
+
+        if is_private != current_user.is_private:
+            current_user.is_private = is_private
+            changes_made = True
+            flashed_messages.append('Your privacy settings have been updated.')
+
+        if changes_made:
+            db.session.commit()
+            if len(flashed_messages) == 1:
+                flash(flashed_messages[0], 'success')
+            else:
+                flash('You have successfully changed your settings.', 'success')
+        else:
+            flash('No changes were made to your profile.', 'info')
         return redirect(url_for('settings'))  
     
     return render_template('settings.html')

@@ -29,7 +29,6 @@
                 {% endfor %}
             </ul>
         {% endif %}
-
         <h3>Friends:</h3>
         <ul>
             {% for friend in user.friends %}
@@ -40,35 +39,6 @@
                 <li>No friends added.</li>
             {% endfor %}
         </ul>
-
-        <h3>Friends:</h3>
-        <ul>
-            {% for friend in user.friends %}
-                <li>
-                    <a href="{{ url_for('user_profile', user_id=friend.id) }}">{{ friend.username }}</a>
-                </li>
-            {% else %}
-                <li>No friends added.</li>
-            {% endfor %}
-        </ul>
-
-        <button id="friendListButton" class="button_class">Friend List</button>
-
-        <div id="friendListPopup" class="popup">
-            <div class="popup-content">
-                <button class="close-button" id="closeFriendList">&times;</button>
-                <h2>Your Friends</h2>
-                <ul>
-                    {% for friend in user.friends %}
-                        <li>
-                            <a href="{{ url_for('user_profile', user_id=friend.id) }}">{{ friend.username }}</a>
-                        </li>
-                    {% else %}
-                        <li>No friends added.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
 
         {% if current_user.is_authenticated and current_user.id != user.id %}
             {% if user in current_user.friends %}
