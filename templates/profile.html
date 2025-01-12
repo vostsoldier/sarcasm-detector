@@ -7,7 +7,7 @@
 <body>
     <div class="gradient-background"></div>
     <a href="{{ url_for('index') }}"><button class="back-button">Back</button></a>
-    <div class="container">
+    <div class="container profile-container">
         <h1>Profile</h1>
         <h2>Welcome, {{ current_user.username }}</h2>
         <p>Joined on: {{ current_user.date_joined.strftime('%B %d, %Y') }}</p>
@@ -30,10 +30,10 @@
         <div class="friend-list">
             <ul>
                 {% for friend in current_user.friends %}
-                    <li>
+                    <li class="friend-item">
                         <a href="{{ url_for('user_profile', user_id=friend.id) }}">{{ friend.username }}</a>
-                        <form action="{{ url_for('remove_friend', friend_id=friend.id) }}" method="POST" style="display:inline;">
-                            <button class="button_class" type="submit">Remove Friend</button>
+                        <form action="{{ url_for('remove_friend', friend_id=friend.id) }}" method="POST">
+                            <button class="button_class remove-button" type="submit">Remove Friend</button>
                         </form>
                     </li>
                 {% else %}
