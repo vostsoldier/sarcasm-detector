@@ -18,7 +18,6 @@ import logging
 from sqlalchemy import func, Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from PyDictionary import PyDictionary
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask_socketio import SocketIO, emit
 
 logging.basicConfig(level=logging.INFO)
@@ -343,6 +342,9 @@ def add_word():
 
         new_achievements = check_and_award_achievements(user)
         db.session.commit()
+        leaderboard = get_leaderboard()
+        socketio.emit('leaderboard_update', leaderboard)
+
         response = {
             'status': 'success',
             'message': 'Word added to the database.'
@@ -478,12 +480,6 @@ def scheduled_word_selection():
     with app.app_context():
         get_word_of_the_day()
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=scheduled_word_selection, trigger="cron", hour=0, minute=0)
-scheduler.start()
-
-import atexit
-atexit.register(lambda: scheduler.shutdown())
 def get_leaderboard():
     users = User.query.all()
     leaderboard_data = sorted(
@@ -504,9 +500,7 @@ def emit_leaderboard():
     leaderboard = get_leaderboard()
     socketio.emit('leaderboard_update', leaderboard)
 
-scheduler.add_job(func=emit_leaderboard, trigger='interval', minutes=1)
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5001, debug=True)
