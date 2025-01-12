@@ -342,8 +342,7 @@ def add_word():
 
         new_achievements = check_and_award_achievements(user)
         db.session.commit()
-        leaderboard = get_leaderboard()
-        socketio.emit('leaderboard_update', leaderboard)
+        emit_leaderboard()  
 
         response = {
             'status': 'success',
