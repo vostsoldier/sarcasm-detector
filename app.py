@@ -213,8 +213,11 @@ def index():
         reverse=True
     )
     word_of_the_day, definition = get_word_of_the_day()
-    discovered_by = User.query.filter(User.contributions.contains(word_of_the_day)).first()
-    discovered_by = discovered_by.username if discovered_by else "Unknown"
+    if word_of_the_day:
+        discovered_by = User.query.filter(User.contributions.contains(word_of_the_day)).first()
+        discovered_by = discovered_by.username if discovered_by else "Unknown"
+    else:
+        discovered_by = "Unknown"
 
     return render_template(
         'index.html',
