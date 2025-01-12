@@ -434,7 +434,6 @@ input[type="text"], input[type="password"] {
 
 .close-button {
     position: absolute;
-    top: -1.3px;
     right: 10px;
     background-color: transparent;
     color: #dc3545;
@@ -653,6 +652,8 @@ input[type="text"], input[type="password"] {
     }
     body {
         padding: 10px;
+        justify-content: center;
+        margin: auto;
     }
     .container {
         width: 90%;
@@ -677,6 +678,25 @@ input[type="text"], input[type="password"] {
     .back-button, .button_class, .nav-button {
         display: block;
         margin: 10px auto;
+    }
+    .profile-container {
+        margin: 0 auto;
+        padding: 20px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .button_class {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .shop-container, .settings-container, .search-container {
+        margin: 0 auto;
+        padding: 0 15px;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin: 20px 20px 20px 20px !important;
     }
 }
 .container.form-container .flashes {
@@ -786,21 +806,6 @@ input[type="text"], input[type="password"] {
     color: #343a40;
 }
 
-.close-button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: #888;
-    cursor: pointer;
-    transition: color 0.3s ease;
-    padding: 0;
-    margin: 0;
-}
-
-.close-button:hover {
-    color: #555;
-}
-
 .feature-request-box textarea {
     width: 100%;
     height: 80px;
@@ -826,22 +831,6 @@ input[type="text"], input[type="password"] {
 
 .feature-request-box button[type="submit"]:hover {
     background-color: #0056b3;
-}
-
-.close-button {
-    position: absolute;
-    top: 5px;
-    right: 8px;
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: #888;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.close-button:hover {
-    color: #555;
 }
 
 .thank-you-message {
