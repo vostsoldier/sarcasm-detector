@@ -19,6 +19,8 @@ from sqlalchemy import func, Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from PyDictionary import PyDictionary
 from flask_socketio import SocketIO, emit
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -113,6 +115,7 @@ class WordOfTheDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(150), nullable=False)
     date = db.Column(db.Date, nullable=False, unique=True)
+    definition = db.Column(db.Text, nullable=True)
 
 class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -176,27 +179,30 @@ def get_word_of_the_day():
     
     if word_of_the_day_entry:
         word = word_of_the_day_entry.word
+        definition = word_of_the_day_entry.definition
     else:
         word_count = Word.query.count()
         if word_count == 0:
             logger.error("Word table is empty. Cannot select Word of the Day.")
-            return None, None, None
+            return None, None
         
         random_offset = random.randint(0, word_count - 1)
         word_entry = Word.query.offset(random_offset).first()
         if not word_entry:
             logger.error("Failed to select a random word.")
-            return None, None, None
+            return None, None
         
-        new_word_of_the_day = WordOfTheDay(word=word_entry.word, date=today)
+        word = word_entry.word
+
+        definition = get_word_definition(word)
+
+        new_word_of_the_day = WordOfTheDay(word=word, date=today, definition=definition)
         db.session.add(new_word_of_the_day)
         db.session.commit()
-        logger.info(f"Selected '{word_entry.word}' as Word of the Day for {today}.")
-        word = word_entry.word
-    
-    user = User.query.filter(User.contributions.contains(word)).first()
-    definition = get_word_definition(word)
-    return word, user.username if user else "Unknown", definition
+
+        logger.info(f"Selected '{word}' as Word of the Day for {today}.")
+
+    return word, definition
 
 @app.route('/')
 def index():
@@ -206,7 +212,10 @@ def index():
         key=lambda user: len(user.contributions.split(',')) if user.contributions else 0,
         reverse=True
     )
-    word_of_the_day, discovered_by, definition = get_word_of_the_day()
+    word_of_the_day, definition = get_word_of_the_day()
+    discovered_by = User.query.filter(User.contributions.contains(word_of_the_day)).first()
+    discovered_by = discovered_by.username if discovered_by else "Unknown"
+
     return render_template(
         'index.html',
         leaderboard=leaderboard_data,
@@ -477,8 +486,14 @@ def compare_contributions(friend_id):
     return render_template('compare_contributions.html', friend=friend, common=common, unique_to_user=unique_to_user, unique_to_friend=unique_to_friend)
 
 def scheduled_word_selection():
-    with app.app_context():
-        get_word_of_the_day()
+    word, definition = get_word_of_the_day()
+    if word:
+        logger.info(f"Word of the Day for today: '{word}' with definition '{definition}'.")
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=scheduled_word_selection, trigger='cron', hour=0, minute=0)
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown())
 
 def get_leaderboard():
     users = User.query.all()
