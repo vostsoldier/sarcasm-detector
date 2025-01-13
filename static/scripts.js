@@ -64,6 +64,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const updatesToggle = document.getElementById('updates-toggle');
+    const updatesTab = document.getElementById('updates');
+
+    updatesToggle.addEventListener('click', function() {
+        updatesTab.classList.toggle('active');
+        updatesToggle.classList.toggle('active');
+    });
+
+    if (closeUpdatesButton) {
+        closeUpdatesButton.addEventListener('click', function() {
+            updatesTab.classList.remove('active');
+            updatesToggle.classList.remove('active');
+        });
+    }
+
     const popup = document.getElementById('howToPlayPopup');
     const closePopupButton = document.getElementById('closePopup');
     const doNotShowAgainCheckbox = document.getElementById('doNotShowAgain');

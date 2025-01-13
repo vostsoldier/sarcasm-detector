@@ -1,4 +1,4 @@
-from app import app, db, User
+from script import app, db, User
 
 def update_achievements():
     with app.app_context():

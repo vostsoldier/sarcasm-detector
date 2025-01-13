@@ -1,5 +1,5 @@
 import os
-from app import app, db, Word
+from script import app, db, Word
 from nltk.corpus import words
 from datetime import datetime, timezone  
 

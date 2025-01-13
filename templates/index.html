@@ -13,22 +13,41 @@
     <div class="login-wrapper">
         {% if current_user.is_authenticated %}
             <nav class="nav-buttons">
-                <a data_step="5" data-intro="Check out your stats here!" href="{{ url_for('profile') }}"><button class="nav-button">Profile</button></a>
-                <a data_step="6" data-intro="Customize your experience using the word coins from contributions!" href="{{ url_for('shop') }}"><button class="nav-button">Shop</button></a>
-                <a data_step="7" data-intro="Change your username or password here. Feel free to enable a private profile!" href="{{ url_for('settings') }}"><button class="nav-button">Settings</button></a>
-                <a data_step="8" data-intro="Make new friends, and find your old friends!" href="{{ url_for('search') }}"><button class="nav-button">Search Users</button></a>
+                <a data_step="5" data-intro="Check out your stats here!" href="{{ url_for('profile') }}">
+                    <button class="nav-button">Profile</button>
+                </a>
+                <a data_step="6" data-intro="Customize your experience using the word coins from contributions!" href="{{ url_for('shop') }}">
+                    <button class="nav-button">Shop</button>
+                </a>
+                <a data_step="7" data-intro="Change your username or password here. Feel free to enable a private profile!" href="{{ url_for('settings') }}">
+                    <button class="nav-button">Settings</button>
+                </a>
+                <a data_step="8" data-intro="Make new friends, and find your old friends!" href="{{ url_for('search') }}">
+                    <button class="nav-button">Search Users</button>
+                </a>
+                <form action="{{ url_for('logout') }}" method="POST" style="display:inline;">
+                    <button class="nav-button logout-button" type="submit">Logout</button>
+                </form>
+                <div id="updates-toggle" class="updates-toggle">
+                    <span>Updates</span>
+                    <span class="arrow">&#9650;</span>
+                </div>
             </nav>
         {% else %}
-            <a href="{{ url_for('login') }}" class="nav-link"><button class="nav-button">Login</button></a>
-            <a href="{{ url_for('signup') }}" class="nav-link"><button class="nav-button signup-button" data-step="4" data-intro="Here, you can create a account, to track your contributions, and put them on the leaderboard!">Sign Up</button></a>
+            <a href="{{ url_for('login') }}" class="nav-link">
+                <button class="nav-button">Login</button>
+            </a>
+            <a href="{{ url_for('signup') }}" class="nav-link">
+                <button class="nav-button signup-button" data-step="4" data-intro="Here, you can create an account to track your contributions and put them on the leaderboard!">Sign Up</button>
+            </a>
         {% endif %}
     </div>
     <div class="main-content">
-        <div class="container" data-step="1" data-intro="Lets get started! Here, you can input unique words to our ever growing list.">
+        <div class="container" data-step="1" data-intro="Let's get started! Here, you can input unique words to our ever-growing list.">
             <h1>Word Vault</h1>
             <form id="wordForm">
-                <input type="text" id="word" name="word" placeholder="Enter a word" autocomplete="off" data-step="2" data-intro="Lets start! Try putting in a new word!">
-                <button class="button_class" type="submit" data-step="3" data-intro="Click Add Word, and congrats, you've have successfully added a new word!">Add Word</button>
+                <input type="text" id="word" name="word" placeholder="Enter a word" autocomplete="off" data-step="2" data-intro="Let's start! Try putting in a new word!">
+                <button class="button_class" type="submit" data-step="3" data-intro="Click Add Word, and congrats, you've successfully added a new word!">Add Word</button>
             </form>
             <p id="message"></p>
             <div class="word-of-the-day">
