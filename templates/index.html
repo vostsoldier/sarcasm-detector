@@ -25,13 +25,6 @@
                 <a data_step="8" data-intro="Make new friends, and find your old friends!" href="{{ url_for('search') }}">
                     <button class="nav-button">Search Users</button>
                 </a>
-                <form action="{{ url_for('logout') }}" method="POST" style="display:inline;">
-                    <button class="nav-button logout-button" type="submit">Logout</button>
-                </form>
-                <div id="updates-toggle" class="updates-toggle">
-                    <span>Updates</span>
-                    <span class="arrow">&#9650;</span>
-                </div>
             </nav>
         {% else %}
             <a href="{{ url_for('login') }}" class="nav-link">
@@ -70,6 +63,10 @@
         </div>
     </div>
     <div id="notification" class="notification"></div>
+    <div id="updates-toggle" class="updates-toggle">
+        <span>Updates</span>
+        <span class="arrow">&#9650;</span>
+    </div>
     <div id="updates" class="updates-tab">
         <div class="updates-content">
             <button id="closeUpdates" class="close-button">x</button>

@@ -1079,27 +1079,6 @@ input[type="text"], input[type="password"] {
     margin-top: 50px;
     margin-bottom: 50px;
 }
-.updates-toggle {
-    position: fixed;
-    bottom: 20px;
-    right: 80px; 
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
-    z-index: 1001;
-}
-
-.updates-toggle:hover {
-    background-color: #0056b3;
-}
-
 .logout-button {
     position: fixed;
     bottom: 20px;
@@ -1118,40 +1097,22 @@ input[type="text"], input[type="password"] {
     background-color: #c82333;
 }
 
-.updates-tab {
-    position: fixed;
-    bottom: 60px;
-    right: 80px; /* Adjusted to align with updates-toggle */
-    width: 300px;
-    max-height: 0;
-    overflow: hidden;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: max-height 0.5s ease;
-    z-index: 1000;
-}
-
-.updates-tab.active {
-    max-height: 400px; 
-}
 .updates-toggle {
     position: fixed;
-    bottom: 20px;
+    bottom: 60px;
     right: 20px;
     background-color: #007bff;
     color: white;
     padding: 10px 15px;
-    border-radius: 5px 5px 0 0;
+    border-radius: 5px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
-    z-index: 1001;
-    cursor: pointer;
+    z-index: 1020 !important; 
+    margin-left: 106.34px;
 }
 
 .updates-toggle:hover {
@@ -1161,6 +1122,10 @@ input[type="text"], input[type="password"] {
 .updates-toggle .arrow {
     transition: transform 0.3s ease;
 }
+
+.updates-toggle.active .arrow {
+    transform: rotate(180deg);
+}
 .updates-tab {
     position: fixed;
     bottom: 60px;
@@ -1173,11 +1138,9 @@ input[type="text"], input[type="password"] {
     border-radius: 0 0 10px 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: max-height 0.5s ease;
-    z-index: 1000;
+    z-index: 1000; 
 }
+
 .updates-tab.active {
     max-height: 400px; 
-}
-.updates-toggle.active .arrow {
-    transform: rotate(180deg);
 }
