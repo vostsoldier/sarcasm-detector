@@ -1,3 +1,4 @@
+/* I'm too scared to change these...*/
 @keyframes pop {
     0% {
         transform: scale(1);
@@ -416,8 +417,8 @@ input[type="text"], input[type="password"] {
 }
 .updates-tab {
     position: fixed;
-    bottom: 60px;
-    right: 80px; 
+    bottom: 10px;
+    right: 10px; 
     width: 300px; 
     max-height: 400px;
     background-color: #ffffff;
@@ -1080,7 +1081,7 @@ input[type="text"], input[type="password"] {
     margin-bottom: 50px;
 }
 .logout-button {
-    position: fixed;
+    min-width: 80px !important;
     bottom: 20px;
     right: 20px;
     background-color: #dc3545;
@@ -1089,18 +1090,19 @@ input[type="text"], input[type="password"] {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.2s ease, background-color 0.3s ease;
     z-index: 1001;
 }
 
 .logout-button:hover {
     background-color: #c82333;
+    transform: scale(1.1);
 }
 
 .updates-toggle {
     position: fixed;
-    bottom: 60px;
-    right: 20px;
+    bottom: 10px;
+    right: 10px;
     background-color: #007bff;
     color: white;
     padding: 10px 15px;
@@ -1128,11 +1130,12 @@ input[type="text"], input[type="password"] {
 }
 .updates-tab {
     position: fixed;
-    bottom: 60px;
-    right: 20px;
+    bottom: 10px;
+    right: 10px;
     width: 300px;
     max-height: 0;
-    overflow: hidden;
+    overflow-y: auto; 
+    overflow-x: hidden; 
     background-color: #f8f9fa;
     border: 1px solid #ddd;
     border-radius: 0 0 10px 10px;
@@ -1142,5 +1145,5 @@ input[type="text"], input[type="password"] {
 }
 
 .updates-tab.active {
-    max-height: 400px; 
+     max-height: 400px; 
 }
