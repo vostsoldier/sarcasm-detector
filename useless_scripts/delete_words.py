@@ -1,5 +1,5 @@
-from script import app, db
-from script import Word  
+from app import app, db
+from app import Word  
 
 def delete_all_words():
     with app.app_context():
