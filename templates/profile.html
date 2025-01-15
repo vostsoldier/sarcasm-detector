@@ -19,7 +19,7 @@
             {% endfor %}
         </ul>
         {% if contributions|length > 5 %}
-            <a href="{{ url_for('full_contributions', user_id=current_user.id) }}" class="button_class">See Full List</a>
+            <a href="{{ url_for('full_contributions', user_id=current_user.id) }}" class="button_class" aria-label="See Full List">See Full List</a>
         {% endif %}
         <h3>Your Achievements:</h3>
         <ul>
@@ -28,13 +28,13 @@
             {% endfor %}
         </ul>
         <h3>Your Friends:</h3>
-        <div class="friend-list">
+        <div class="friend-list" aria-live="polite">
             <ul>
                 {% for friend in current_user.friends %}
                     <li class="friend-item">
                         <a href="{{ url_for('user_profile', user_id=friend.id) }}">{{ friend.username }}</a>
                         <form action="{{ url_for('remove_friend', friend_id=friend.id) }}" method="POST">
-                            <button class="button_class remove-button" type="submit">Remove Friend</button>
+                            <button class="button_class remove-button" type="submit" aria-label="Remove Friend">Remove Friend</button>
                         </form>
                     </li>
                 {% else %}

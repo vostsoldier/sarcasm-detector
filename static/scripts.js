@@ -189,6 +189,11 @@ document.addEventListener('DOMContentLoaded', function() {
             leaderboardList.appendChild(li);
         });
     });
+    const notification = document.getElementById('notification');
+    if (notification) {
+        notification.setAttribute('aria-live', 'assertive');
+        notification.setAttribute('role', 'alert');
+    }
 });
 
 function showNotification(achievements) {

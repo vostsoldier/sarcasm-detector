@@ -91,6 +91,7 @@ class User(UserMixin, db.Model):
     words_entered_today = db.Column(db.Integer, nullable=False, default=0)
     last_word_entry_date = db.Column(db.Date, nullable=True)
     is_private = db.Column(db.Boolean, default=False)
+    background_color = db.Column(db.String(7), nullable=True, default="#e0e0e0")
 
     friends = relationship(
         'User',
@@ -269,6 +270,12 @@ def redeem():
     
     if current_user.word_coins >= item_cost:
         current_user.word_coins -= item_cost
+        if item_type == 'background_color':
+            selected_color = request.form.get('color')
+            if selected_color and len(selected_color) == 7 and selected_color.startswith('#'):
+                current_user.background_color = selected_color
+            else:
+                flash('Invalid color selected.', 'danger')
         db.session.commit()
         flash('Item redeemed successfully!', 'success')
     else:

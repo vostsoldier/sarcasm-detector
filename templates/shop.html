@@ -23,6 +23,17 @@
                     </form>
                 </li>
             {% endfor %}
+            <li class="shop-item">
+                <div class="item-name">Background Color</div>
+                <div class="item-cost">50 Word Coins</div>
+                <form method="POST" action="{{ url_for('redeem') }}">
+                    <input type="hidden" name="item_type" value="background_color">
+                    <input type="hidden" name="item_cost" value="50">
+                    <label for="color">Choose a color:</label>
+                    <input type="color" id="color" name="color" value="#ffffff" required>
+                    <button type="submit">Redeem</button>
+                </form>
+            </li>
         </ul>
     </div>
 </body>
