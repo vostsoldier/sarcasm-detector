@@ -265,23 +265,34 @@ def shop():
 @app.route('/redeem', methods=['POST'])
 @login_required
 def redeem():
-    item_type = request.form['item_type']
-    item_cost = int(request.form['item_cost'])
+    item_type = request.form.get('item_type')
+    item_cost = int(request.form.get('item_cost', 0))
     
     if current_user.word_coins >= item_cost:
         current_user.word_coins -= item_cost
         if item_type == 'background_color':
-            selected_color = request.form.get('color')
-            if selected_color and len(selected_color) == 7 and selected_color.startswith('#'):
-                current_user.background_color = selected_color
-            else:
-                flash('Invalid color selected.', 'danger')
+            color = request.form.get('color')
+            if color:
+                current_user.background_color = color
+                db.session.commit()
+                flash('Background color updated.', 'success')
+                return jsonify({
+                    'status': 'success',
+                    'message': 'Background color updated.',
+                    'color': color  
+                })
         db.session.commit()
         flash('Item redeemed successfully!', 'success')
+        return jsonify({
+            'status': 'success',
+            'message': 'Item redeemed successfully.'
+        })
     else:
         flash('Not enough Word Coins.', 'danger')
-    
-    return redirect(url_for('shop'))
+        return jsonify({
+            'status': 'error',
+            'message': 'Not enough Word Coins.'
+        })
 
 @app.route('/user/<int:user_id>')
 def user_profile(user_id):

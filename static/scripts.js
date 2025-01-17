@@ -194,6 +194,61 @@ document.addEventListener('DOMContentLoaded', function() {
         notification.setAttribute('aria-live', 'assertive');
         notification.setAttribute('role', 'alert');
     }
+
+    const shopForms = document.querySelectorAll('.shop-item form');
+    shopForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageElement = document.getElementById('message');
+                messageElement.innerText = data.message;
+                messageElement.className = data.status === 'error' ? 'error' : 'success';
+
+                if (data.status === 'success' && data.item_type === 'background_color') {
+                    document.body.style.backgroundColor = data.color;
+                }
+            });
+        });
+    });
+    const redeemForms = document.querySelectorAll('.redeem-form');
+    redeemForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' 
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageElement = document.getElementById('message');
+                if (data.status === 'success') {
+                    messageElement.textContent = data.message;
+                    messageElement.className = 'success';
+                    
+                    if (data.color) {
+                        document.body.style.backgroundColor = data.color; 
+                    }
+                } else {
+                    messageElement.textContent = data.message;
+                    messageElement.className = 'error';
+                }
+            })
+            .catch(error => {
+                console.error('Error redeeming item:', error);
+            });
+        });
+    });
 });
 
 function showNotification(achievements) {

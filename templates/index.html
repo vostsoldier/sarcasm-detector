@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.0.0/introjs.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/4.0.0/intro.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            background-color: "{{ current_user.background_color or '#e0e0e0' }}";
+        }
+    </style>
 </head>
 <body>
     <div class="gradient-background"></div>
@@ -42,7 +47,6 @@
         <div class="container" data-step="1" data-intro="Let's get started! Here, you can input unique words to our ever-growing list.">
             <h1>Word Vault</h1>
             <form id="wordForm">
-                <label for="word">Enter a word</label>
                 <input type="text" id="word" name="word" placeholder="Enter a word" autocomplete="off" aria-label="Word Input" data-step="2" data-intro="Let's start! Try putting in a new word!">
                 <button class="button_class" type="submit" aria-label="Add Word" data-step="3" data-intro="Click Add Word, and congrats, you've successfully added a new word!">Add Word</button>
             </form>
